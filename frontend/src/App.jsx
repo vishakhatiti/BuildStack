@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
@@ -15,6 +15,6 @@ function App() {
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
