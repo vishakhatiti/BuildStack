@@ -1,38 +1,71 @@
 import { useState } from "react";
 import API from "../services/api";
 
-function Register() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+const initialFormState = {
+  name: "",
+  email: "",
+  password: "",
+};
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+function Register() {
+  const [form, setForm] = useState(initialFormState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = ({ target: { name, value } }) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
 
     try {
       await API.post("/auth/register", form);
       alert("Registered successfully");
+      setForm(initialFormState);
     } catch (error) {
-      alert(error.response?.data?.message || "Error");
+      alert(error.response?.data?.message || "Unable to register. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div>
+    <main>
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
-        <input name="name" onChange={handleChange} />
-        <input name="email" onChange={handleChange} />
-        <input name="password" type="password" onChange={handleChange} />
-        <button type="submit">Register</button>
+        <input
+          name="name"
+          type="text"
+          placeholder="Name"
+          autoComplete="name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          autoComplete="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          autoComplete="new-password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Registering..." : "Register"}
+        </button>
       </form>
-    </div>
+    </main>
   );
 }
 
