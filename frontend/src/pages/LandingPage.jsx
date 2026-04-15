@@ -5,13 +5,29 @@ import Features from "../components/Features";
 import CTA from "../components/CTA";
 import Footer from "../components/Footer";
 
-const steps = ["Add Project", "Track Deployment", "Monitor Dashboard"];
+const workflowSteps = [
+  {
+    title: "Create a project workspace",
+    detail:
+      "Connect your repository, assign service ownership, and define release context so every deployment event maps to the right product.",
+  },
+  {
+    title: "Track deployment state transitions",
+    detail:
+      "Follow every run through In Progress, Live, or Failed status to spot stalled rollouts quickly and unblock releases before sprint deadlines slip.",
+  },
+  {
+    title: "Act from the dashboard",
+    detail:
+      "Use build health signals and trend summaries to prioritize fixes, communicate release confidence, and keep stakeholders aligned in real time.",
+  },
+];
 
 const LandingPage = () => {
   const [stats, setStats] = useState({
-    users: 0,
-    visibility: 0,
-    countries: 0,
+    statusStates: 0,
+    unifiedDashboard: 0,
+    setupMinutes: 0,
   });
   const hasAnimatedStats = useRef(false);
 
@@ -30,9 +46,9 @@ const LandingPage = () => {
               const animate = (time) => {
                 const progress = Math.min((time - start) / duration, 1);
                 setStats({
-                  users: Math.floor(12000 * progress),
-                  visibility: Number((98.9 * progress).toFixed(1)),
-                  countries: Math.floor(140 * progress),
+                  statusStates: Math.floor(3 * progress),
+                  unifiedDashboard: Math.floor(1 * progress),
+                  setupMinutes: Math.floor(5 * progress),
                 });
 
                 if (progress < 1) {
@@ -71,26 +87,23 @@ const LandingPage = () => {
         <div className="container">
           <div className="section-heading">
             <p className="eyebrow">How it works</p>
-            <h2>Set up in minutes, monitor forever</h2>
+            <h2>A release workflow developers can trust every sprint</h2>
+            <p className="section-intro">
+              BuildStack keeps project context, deployment progression, and operational follow-up in
+              a single flow so teams spend less time syncing and more time shipping.
+            </p>
           </div>
 
           <div className="steps-grid">
-            {steps.map((step, index) => (
+            {workflowSteps.map((step, index) => (
               <article
                 className="step-card reveal"
-                key={step}
+                key={step.title}
                 style={{ "--stagger": `${index * 0.1}s` }}
               >
                 <span>Step {index + 1}</span>
-                <h3>{step}</h3>
-                <p>
-                  {index === 0 &&
-                    "Create a project workspace and connect your repository in seconds."}
-                  {index === 1 &&
-                    "Watch each deployment move across Live, Failed, and In Progress states."}
-                  {index === 2 &&
-                    "Use one dashboard to spot blockers early and keep your releases healthy."}
-                </p>
+                <h3>{step.title}</h3>
+                <p>{step.detail}</p>
               </article>
             ))}
           </div>
@@ -99,24 +112,24 @@ const LandingPage = () => {
 
       <section className="section reveal">
         <div className="container trust-panel">
-          <p className="eyebrow">Trusted by builders</p>
-          <h2>Used by developers worldwide</h2>
+          <p className="eyebrow">Operational clarity</p>
+          <h2>Built around the metrics engineering teams actually use</h2>
           <p>
-            From solo freelancers to student teams and startup engineers, BuildStack keeps
-            deployments reliable and visible.
+            BuildStack is designed to make deployment health obvious: clear status states, one
+            shared dashboard, and fast setup for new projects.
           </p>
-          <div className="trust-metrics reveal" aria-label="Trust metrics">
+          <div className="trust-metrics reveal" aria-label="Platform highlights">
             <div className="reveal" style={{ "--stagger": "0s" }}>
-              <strong>{stats.users > 999 ? `${Math.floor(stats.users / 1000)}K+` : "12K+"}</strong>
-              <span>Active users</span>
+              <strong>{stats.statusStates > 0 ? stats.statusStates : 3}</strong>
+              <span>Deployment states tracked</span>
             </div>
             <div className="reveal" style={{ "--stagger": "0.1s" }}>
-              <strong>{stats.visibility > 0 ? `${stats.visibility}%` : "98.9%"}</strong>
-              <span>Deployment visibility</span>
+              <strong>{stats.unifiedDashboard > 0 ? stats.unifiedDashboard : 1}</strong>
+              <span>Unified dashboard per workspace</span>
             </div>
             <div className="reveal" style={{ "--stagger": "0.2s" }}>
-              <strong>{stats.countries > 0 ? `${stats.countries}+` : "140+"}</strong>
-              <span>Countries reached</span>
+              <strong>{stats.setupMinutes > 0 ? `${stats.setupMinutes} min` : "5 min"}</strong>
+              <span>To configure a new project</span>
             </div>
           </div>
         </div>
