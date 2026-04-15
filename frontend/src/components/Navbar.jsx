@@ -1,4 +1,8 @@
+import { useTheme } from "../context/ThemeContext";
+
 const Navbar = () => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <header className="navbar" id="home">
       <div className="container navbar-inner">
@@ -14,6 +18,14 @@ const Navbar = () => {
         </nav>
 
         <div className="nav-actions">
+          <button
+            className="btn btn-theme"
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+          </button>
           <button className="btn btn-ghost" type="button">
             Login
           </button>

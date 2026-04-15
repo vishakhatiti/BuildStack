@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
+import CTA from "../components/CTA";
 import Footer from "../components/Footer";
 
 const steps = ["Add Project", "Track Deployment", "Monitor Dashboard"];
@@ -36,19 +37,7 @@ const LandingPage = () => {
       <Navbar />
       <Hero />
       <Features />
-
-      <section className="section cta-section reveal" id="get-started">
-        <div className="container">
-          <div className="cta-card reveal">
-            <p className="eyebrow">Start building smarter</p>
-            <h2>Start managing your projects today</h2>
-            <p>Join BuildStack and keep every deployment on track from day one.</p>
-            <button className="btn btn-primary" type="button">
-              Get Started
-            </button>
-          </div>
-        </div>
-      </section>
+      <CTA />
 
       <section className="section muted reveal" id="about">
         <div className="container">
