@@ -1,0 +1,113 @@
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at top, #eff6ff 0%, #e0e7ff 35%, #f8fafc 100%);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+.auth-card {
+  width: min(460px, 100%);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.auth-card h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.auth-subtitle {
+  margin: 10px 0 24px;
+  color: #475569;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-form input,
+.auth-form select,
+.auth-form button,
+.oauth-btn {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  padding: 12px 14px;
+  font-size: 0.98rem;
+}
+
+.auth-form button {
+  border: none;
+  background: linear-gradient(90deg, #1d4ed8, #7c3aed);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-form button:disabled {
+  opacity: 0.7;
+}
+
+.form-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.oauth-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.oauth-btn {
+  display: inline-flex;
+  justify-content: center;
+  text-decoration: none;
+  background: white;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.oauth-btn.github {
+  background: #0f172a;
+  color: white;
+}
+
+.auth-divider {
+  margin: 18px 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.auth-footnote {
+  text-align: center;
+  margin-top: 18px;
+  color: #475569;
+}
+
+.auth-footnote a {
+  color: #1d4ed8;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

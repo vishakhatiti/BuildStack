@@ -1,103 +1,166 @@
-.dashboard {
+.dashboard-shell {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 24px;
+  font-family: Inter, system-ui, sans-serif;
+  color: #0f172a;
+}
+
+.dashboard-header {
   display: flex;
-  height: 100vh;
-  font-family: "Segoe UI", sans-serif;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 220px;
-  background: #111827;
-  color: white;
-  padding: 20px;
+.dashboard-header h1 {
+  margin: 0 0 8px;
 }
 
-.logo {
-  margin-bottom: 20px;
+.dashboard-header p {
+  margin: 0;
+  color: #475569;
 }
 
-.sidebar ul {
-  list-style: none;
-}
-
-.sidebar li {
-  padding: 10px;
-  margin: 5px 0;
+.logout-btn,
+.ghost-btn,
+.quick-form button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
   cursor: pointer;
-  border-radius: 6px;
+  font-weight: 600;
 }
 
-.sidebar li:hover,
-.sidebar .active {
-  background: #1f2937;
+.logout-btn {
+  background: #0f172a;
+  color: #fff;
 }
 
-/* Main */
-.main {
-  flex: 1;
-  padding: 20px;
-  background: #f3f4f6;
-}
-
-.main h1 {
-  margin-bottom: 20px;
-}
-
-/* Stats */
-.stats {
+.stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 22px;
 }
 
-.card {
+.stat-card {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  gap: 6px;
 }
 
-.card p {
-  font-size: 20px;
-  font-weight: bold;
+.stat-card strong {
+  font-size: 1.8rem;
 }
 
-.live {
-  color: green;
+.stat-card.live strong { color: #047857; }
+.stat-card.failed strong { color: #b91c1c; }
+.stat-card.in-progress strong { color: #d97706; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
 }
 
-.failed {
-  color: red;
-}
-
-.progress {
-  color: orange;
-}
-
-/* Projects */
-.projects {
+.panel {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.ghost-btn {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.project-list {
+  display: grid;
+  gap: 10px;
 }
 
 .project-card {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-card h3 {
+  margin: 0 0 4px;
+}
+
+.project-card p {
+  margin: 0;
+  color: #475569;
 }
 
 .badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: white;
+  text-transform: capitalize;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .badge.live {
-  background: green;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .badge.failed {
-  background: red;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.in_progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.quick-form {
+  display: grid;
+  gap: 10px;
+}
+
+.quick-form input,
+.quick-form select {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.quick-form button {
+  background: linear-gradient(90deg, #1d4ed8, #7c3aed);
+  color: white;
+}
+
+.empty-state {
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }

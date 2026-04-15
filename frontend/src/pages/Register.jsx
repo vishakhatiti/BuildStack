@@ -1,15 +1,12 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 
-const initialFormState = {
-  name: "",
-  email: "",
-  password: "",
-};
-
 const Register = () => {
-  const [form, setForm] = useState(initialFormState);
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = ({ target: { name, value } }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -18,53 +15,54 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
+    setError("");
 
     try {
-      await API.post("/auth/register", form);
-      alert("Registered successfully");
-      setForm(initialFormState);
-    } catch (error) {
-      alert(error.response?.data?.message || "Unable to register. Please try again.");
+      const { data } = await API.post("/auth/register/request-otp", form);
+      navigate("/verify-otp", {
+        state: {
+          otpSessionId: data.otpSessionId,
+          email: data.email,
+          purpose: "signup",
+        },
+      });
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Unable to start registration.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <main>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          type="text"
-          placeholder="Name"
-          autoComplete="name"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          autoComplete="email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          autoComplete="new-password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Registering..." : "Register"}
-        </button>
-      </form>
+    <main className="auth-shell">
+      <section className="auth-card fade-in-up">
+        <h1>Create your BuildStack account</h1>
+        <p className="auth-subtitle">Ship faster with secure access and project visibility.</p>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <input name="name" type="text" placeholder="Full name" value={form.name} onChange={handleChange} required />
+          <input name="email" type="email" placeholder="Work email" value={form.email} onChange={handleChange} required />
+          <input
+            name="password"
+            type="password"
+            placeholder="Create password"
+            value={form.password}
+            onChange={handleChange}
+            minLength={6}
+            required
+          />
+
+          {error ? <p className="form-error">{error}</p> : null}
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Sending OTP..." : "Create account"}
+          </button>
+        </form>
+
+        <p className="auth-footnote">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </p>
+      </section>
     </main>
   );
 };
