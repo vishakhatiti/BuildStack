@@ -23,7 +23,7 @@ const featureItems = [
 
 const Features = () => {
   return (
-    <section className="section" id="features">
+    <section className="section reveal" id="features">
       <div className="container">
         <div className="section-heading">
           <p className="eyebrow">Features</p>
@@ -32,7 +32,7 @@ const Features = () => {
 
         <div className="features-grid">
           {featureItems.map((feature) => (
-            <article className="feature-card" key={feature.title}>
+            <article className="feature-card reveal" key={feature.title}>
               <span className="feature-icon" aria-hidden="true">
                 {feature.icon}
               </span>

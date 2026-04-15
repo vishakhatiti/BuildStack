@@ -2,7 +2,7 @@ const Hero = () => {
   return (
     <section className="hero-section" id="home">
       <div className="hero-glow" aria-hidden="true" />
-      <div className="container hero-layout">
+      <div className="container hero-layout animate-in">
         <p className="eyebrow">Developer platform for modern teams</p>
         <h1>Build, deploy, and scale with complete release visibility.</h1>
         <p className="hero-description">
@@ -17,7 +17,7 @@ const Hero = () => {
           <button className="btn btn-secondary" type="button">
             Continue with Google
           </button>
-          <button className="btn btn-secondary" type="button">
+          <button className="btn btn-ghost" type="button">
             Continue with GitHub
           </button>
         </div>
