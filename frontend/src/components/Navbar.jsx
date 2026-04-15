@@ -1,35 +1,29 @@
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
-
   return (
-    <div style={styles.nav}>
-      <h2>BuildStack</h2>
+    <header className="navbar" id="home">
+      <div className="container navbar-inner">
+        <a className="brand" href="#home" aria-label="BuildStack home">
+          <span className="brand-dot" />
+          BuildStack
+        </a>
 
-      <div>
-        {user ? (
-          <>
-            <span style={{ marginRight: "10px" }}>{user.name}</span>
-            <button onClick={logout}>Logout</button>
-          </>
-        ) : (
-          <span>Not Logged In</span>
-        )}
+        <nav className="nav-links" aria-label="Primary navigation">
+          <a href="#home">Home</a>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <div className="nav-actions">
+          <button className="btn btn-ghost" type="button">
+            Login
+          </button>
+          <button className="btn btn-primary" type="button">
+            Get Started
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
   );
-};
-
-const styles = {
-  nav: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "10px 20px",
-    background: "#111827",
-    color: "white",
-  },
 };
 
 export default Navbar;
