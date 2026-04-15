@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
@@ -6,15 +7,39 @@ import Footer from "../components/Footer";
 const steps = ["Add Project", "Track Deployment", "Monitor Dashboard"];
 
 const LandingPage = () => {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      {
+        threshold: 0.16,
+        rootMargin: "0px 0px -70px 0px",
+      }
+    );
+
+    const revealElements = document.querySelectorAll(".reveal");
+    revealElements.forEach((element) => observer.observe(element));
+
+    return () => {
+      revealElements.forEach((element) => observer.unobserve(element));
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className="landing-page">
       <Navbar />
       <Hero />
       <Features />
 
-      <section className="section cta-section" id="get-started">
+      <section className="section cta-section reveal" id="get-started">
         <div className="container">
-          <div className="cta-card">
+          <div className="cta-card reveal">
             <p className="eyebrow">Start building smarter</p>
             <h2>Start managing your projects today</h2>
             <p>Join BuildStack and keep every deployment on track from day one.</p>
@@ -25,7 +50,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="section muted" id="about">
+      <section className="section muted reveal" id="about">
         <div className="container">
           <div className="section-heading">
             <p className="eyebrow">How it works</p>
@@ -34,7 +59,7 @@ const LandingPage = () => {
 
           <div className="steps-grid">
             {steps.map((step, index) => (
-              <article className="step-card" key={step}>
+              <article className="step-card reveal" key={step}>
                 <span>Step {index + 1}</span>
                 <h3>{step}</h3>
                 <p>
@@ -51,7 +76,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section reveal">
         <div className="container trust-panel">
           <p className="eyebrow">Trusted by builders</p>
           <h2>Used by developers worldwide</h2>
@@ -60,15 +85,15 @@ const LandingPage = () => {
             deployments reliable and visible.
           </p>
           <div className="trust-metrics" aria-label="Trust metrics">
-            <div>
+            <div className="reveal">
               <strong>12K+</strong>
               <span>Active users</span>
             </div>
-            <div>
+            <div className="reveal">
               <strong>98.9%</strong>
               <span>Deployment visibility</span>
             </div>
-            <div>
+            <div className="reveal">
               <strong>140+</strong>
               <span>Countries reached</span>
             </div>
