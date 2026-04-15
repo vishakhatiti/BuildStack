@@ -1,8 +1,18 @@
 import axios from "axios";
 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-  VITE_API_UR: "https://buildstack-kmdz.onrender.com",
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default API;
