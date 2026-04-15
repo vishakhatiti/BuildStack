@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 
-const Register = () => {
+function Register() {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -16,61 +16,24 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/register", form);
-
+      await API.post("/auth/register", form);
       alert("Registered successfully");
-      console.log(res.data);
-
-      // optional: clear form
-      setForm({
-        name: "",
-        email: "",
-        password: "",
-      });
-
     } catch (error) {
-      alert(error.response?.data?.message || "Registration failed");
+      alert(error.response?.data?.message || "Error");
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Register</h2>
-
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit">Register</button>
-        </form>
-      </div>
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <input name="name" onChange={handleChange} />
+        <input name="email" onChange={handleChange} />
+        <input name="password" type="password" onChange={handleChange} />
+        <button type="submit">Register</button>
+      </form>
     </div>
   );
-};
+}
 
 export default Register;

@@ -1,24 +1,38 @@
+import { useState } from "react";
 import API from "../services/api";
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+function Login() {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
 
-  try {
-    const res = await API.post("/auth/login", form);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-    // Save token
-    localStorage.setItem("token", res.data.token);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    alert("Login successful");
+    try {
+      const res = await API.post("/auth/login", form);
+      localStorage.setItem("token", res.data.token);
+      alert("Login successful");
+    } catch (error) {
+      alert(error.response?.data?.message || "Error");
+    }
+  };
 
-    console.log(res.data);
-  } catch (error) {
-    alert(error.response?.data?.message || "Error");
-  }
-};
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input name="email" onChange={handleChange} />
+        <input name="password" type="password" onChange={handleChange} />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+}
 
-const Login = () => {
-  return <div>Login Page</div>;
-};
-
-export default Login;   // ✅ MUST EXIST
+export default Login;
