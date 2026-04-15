@@ -12,6 +12,19 @@ const LandingPage = () => {
       <Hero />
       <Features />
 
+      <section className="section cta-section" id="get-started">
+        <div className="container">
+          <div className="cta-card">
+            <p className="eyebrow">Start building smarter</p>
+            <h2>Start managing your projects today</h2>
+            <p>Join BuildStack and keep every deployment on track from day one.</p>
+            <button className="btn btn-primary" type="button">
+              Get Started
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section className="section muted" id="about">
         <div className="container">
           <div className="section-heading">
@@ -60,16 +73,6 @@ const LandingPage = () => {
               <span>Countries reached</span>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="section cta-section">
-        <div className="container cta-card">
-          <h2>Start managing your projects today</h2>
-          <p>Join BuildStack and keep every deployment on track from day one.</p>
-          <button className="btn btn-primary" type="button">
-            Get Started
-          </button>
         </div>
       </section>
 
