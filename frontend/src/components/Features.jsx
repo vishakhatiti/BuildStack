@@ -1,21 +1,21 @@
 const featureItems = [
   {
-    icon: "📁",
+    icon: "PM",
     title: "Project Management",
     description: "Keep every build organized with tags, owners, deadlines, and source links.",
   },
   {
-    icon: "🚀",
+    icon: "DT",
     title: "Deployment Tracking",
     description: "Track status in real time and instantly know what is Live, Failed, or In Progress.",
   },
   {
-    icon: "📊",
+    icon: "AI",
     title: "Dashboard Insights",
     description: "Get clear metrics that show delivery speed, success rates, and team activity.",
   },
   {
-    icon: "✨",
+    icon: "UX",
     title: "Clean UI/UX",
     description: "Focus on shipping with a fast, distraction-free interface made for builders.",
   },
@@ -31,8 +31,12 @@ const Features = () => {
         </div>
 
         <div className="features-grid">
-          {featureItems.map((feature) => (
-            <article className="feature-card reveal" key={feature.title}>
+          {featureItems.map((feature, index) => (
+            <article
+              className="feature-card reveal"
+              key={feature.title}
+              style={{ "--stagger": `${index * 0.1}s` }}
+            >
               <span className="feature-icon" aria-hidden="true">
                 {feature.icon}
               </span>
