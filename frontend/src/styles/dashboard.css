@@ -1,0 +1,103 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #111827;
+  color: white;
+  padding: 20px;
+}
+
+.logo {
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar li {
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sidebar li:hover,
+.sidebar .active {
+  background: #1f2937;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px;
+  background: #f3f4f6;
+}
+
+.main h1 {
+  margin-bottom: 20px;
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.live {
+  color: green;
+}
+
+.failed {
+  color: red;
+}
+
+.progress {
+  color: orange;
+}
+
+/* Projects */
+.projects {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.project-card {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: white;
+}
+
+.badge.live {
+  background: green;
+}
+
+.badge.failed {
+  background: red;
+}
