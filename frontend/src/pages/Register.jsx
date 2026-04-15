@@ -17,12 +17,19 @@ const Register = () => {
 
     try {
       const res = await API.post("/auth/register", form);
-      console.log(res.data);
 
       alert("Registered successfully");
+      console.log(res.data);
+
+      // optional: clear form
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+      });
+
     } catch (error) {
-      console.error(error.response?.data?.message);
-      alert(error.response?.data?.message || "Error");
+      alert(error.response?.data?.message || "Registration failed");
     }
   };
 
@@ -36,6 +43,7 @@ const Register = () => {
             type="text"
             name="name"
             placeholder="Name"
+            value={form.name}
             onChange={handleChange}
             required
           />
@@ -44,6 +52,7 @@ const Register = () => {
             type="email"
             name="email"
             placeholder="Email"
+            value={form.email}
             onChange={handleChange}
             required
           />
@@ -52,6 +61,7 @@ const Register = () => {
             type="password"
             name="password"
             placeholder="Password"
+            value={form.password}
             onChange={handleChange}
             required
           />
@@ -64,4 +74,3 @@ const Register = () => {
 };
 
 export default Register;
-
