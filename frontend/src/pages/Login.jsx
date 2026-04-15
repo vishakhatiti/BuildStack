@@ -6,7 +6,7 @@ const initialFormState = {
   password: "",
 };
 
-function Login() {
+const Login = () => {
   const [form, setForm] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,6 +58,6 @@ function Login() {
       </form>
     </main>
   );
-}
+};
 
 export default Login;

@@ -7,7 +7,7 @@ const initialFormState = {
   password: "",
 };
 
-function Register() {
+const Register = () => {
   const [form, setForm] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,6 +67,6 @@ function Register() {
       </form>
     </main>
   );
-}
+};
 
 export default Register;
