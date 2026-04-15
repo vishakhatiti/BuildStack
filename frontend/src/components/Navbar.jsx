@@ -2,6 +2,7 @@ import { useTheme } from "../context/ThemeContext";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
+  const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
     <header className="navbar" id="home">
@@ -19,12 +20,13 @@ const Navbar = () => {
 
         <div className="nav-actions">
           <button
-            className="btn btn-theme"
+            className="btn btn-theme-icon"
             type="button"
             onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            aria-label={`Switch to ${nextTheme} mode`}
+            title={`Switch to ${nextTheme} mode`}
           >
-            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+            {theme === "dark" ? "☀️" : "🌙"}
           </button>
           <button className="btn btn-ghost" type="button">
             Login
