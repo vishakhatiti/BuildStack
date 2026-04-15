@@ -16,3 +16,9 @@ const handleSubmit = async (e) => {
     alert(error.response?.data?.message || "Error");
   }
 };
+
+const Login = () => {
+  return <div>Login Page</div>;
+};
+
+export default Login;   // ✅ MUST EXIST
