@@ -13,9 +13,10 @@ const Navbar = () => {
         </a>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          <a href="#home">Home</a>
-          <a href="#features">Features</a>
-          <a href="#about">About</a>
+          <a href="#home">Overview</a>
+          <a href="#features">Capabilities</a>
+          <a href="#about">Workflow</a>
+          <a href="#get-started">Start</a>
         </nav>
 
         <div className="nav-actions">
@@ -29,10 +30,10 @@ const Navbar = () => {
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
           <button className="btn btn-ghost" type="button">
-            Login
+            Sign In
           </button>
           <button className="btn btn-primary" type="button">
-            Get Started
+            Create Workspace
           </button>
         </div>
       </div>

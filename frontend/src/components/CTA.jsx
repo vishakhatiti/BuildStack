@@ -3,11 +3,14 @@ const CTA = () => {
     <section className="section cta-section reveal" id="get-started">
       <div className="container">
         <div className="cta-card reveal">
-          <p className="eyebrow">Start building smarter</p>
-          <h2>Start managing your projects today</h2>
-          <p>Join BuildStack and keep every deployment on track from day one.</p>
+          <p className="eyebrow">Ready to reduce release guesswork?</p>
+          <h2>Use BuildStack to keep every deployment accountable.</h2>
+          <p>
+            Start with one repository, track status transitions in real time, and give your team a
+            shared dashboard for faster incident response and healthier releases.
+          </p>
           <button className="btn btn-primary" type="button">
-            Get Started
+            Start Tracking Deployments
           </button>
         </div>
       </div>

@@ -1,23 +1,27 @@
 const featureItems = [
   {
-    icon: "PM",
-    title: "Project Management",
-    description: "Keep every build organized with tags, owners, deadlines, and source links.",
+    icon: "PR",
+    title: "Project Registry",
+    description:
+      "Create a workspace per product, attach repository URLs, and keep owners, priorities, and release scope visible for every build cycle.",
   },
   {
-    icon: "DT",
-    title: "Deployment Tracking",
-    description: "Track status in real time and instantly know what is Live, Failed, or In Progress.",
+    icon: "DS",
+    title: "Deployment Status Board",
+    description:
+      "Track each release as Live, Failed, or In Progress so engineers can triage blockers immediately instead of chasing status in chat.",
   },
   {
-    icon: "AI",
+    icon: "DI",
     title: "Dashboard Insights",
-    description: "Get clear metrics that show delivery speed, success rates, and team activity.",
+    description:
+      "See success rate trends, stalled deployments, and current throughput in one dashboard to make data-backed shipping decisions.",
   },
   {
-    icon: "UX",
-    title: "Clean UI/UX",
-    description: "Focus on shipping with a fast, distraction-free interface made for builders.",
+    icon: "AL",
+    title: "Actionable Alerts",
+    description:
+      "Surface failed or long-running deployments early, helping teams resolve risk before customers notice downtime or broken releases.",
   },
 ];
 
@@ -26,8 +30,12 @@ const Features = () => {
     <section className="section reveal" id="features">
       <div className="container">
         <div className="section-heading">
-          <p className="eyebrow">Features</p>
-          <h2>Everything you need to ship with confidence</h2>
+          <p className="eyebrow">Core capabilities</p>
+          <h2>Everything your team needs to ship reliably</h2>
+          <p className="section-intro">
+            BuildStack focuses on release execution: project context, deployment state visibility,
+            and operational insights that reduce uncertainty across every sprint.
+          </p>
         </div>
 
         <div className="features-grid">
