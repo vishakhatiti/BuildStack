@@ -1,19 +1,17 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
-
-import LandingPage from "./pages/LandingPage";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
-import "./styles/landing.css";
-import "./styles/auth.css";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import Landing from "./pages/Landing";
+import "./App.css";
 
 const App = () => (
   <Router>
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/login" element={<Navigate to="/auth" replace />} />
+      <Route path="/signup" element={<Navigate to="/auth?tab=signup" replace />} />
       <Route
         path="/dashboard"
         element={
