@@ -1,72 +1,88 @@
-const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
 
-const MAIL_FROM = process.env.MAIL_FROM || "BuildStack <no-reply@buildstack.app>";
+const REQUIRED_ENV_VARS = [
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "GOOGLE_REFRESH_TOKEN",
+  "GOOGLE_EMAIL",
+];
 
-let transporter;
-
-const getTransporter = () => {
-  if (transporter) return transporter;
-
-  const hasSmtpConfig =
-    process.env.SMTP_HOST &&
-    process.env.SMTP_PORT &&
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASS;
-
-  if (hasSmtpConfig) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  } else {
-    transporter = nodemailer.createTransport({ jsonTransport: true });
-    console.warn("SMTP credentials are missing. Using jsonTransport for email previews.");
+const assertEmailEnv = () => {
+  const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+  if (missing.length > 0) {
+    throw new Error(`Missing Gmail OAuth env variables: ${missing.join(", ")}`);
   }
-
-  return transporter;
 };
 
-const sendOtpEmail = async ({ to, name, otp, purpose }) => {
-  const subject = purpose === "signup" ? "Verify your BuildStack account" : "Your BuildStack login code";
+const createGmailClient = async () => {
+  assertEmailEnv();
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.5;color:#111827">
-      <h2 style="margin:0 0 16px">Hi ${name || "there"},</h2>
-      <p>Use this one-time code to ${purpose === "signup" ? "complete your signup" : "finish your login"}.</p>
-      <div style="font-size:30px;font-weight:700;letter-spacing:8px;margin:20px 0;color:#1d4ed8">${otp}</div>
-      <p>This code expires in <strong>5 minutes</strong>.</p>
-      <p>If you didn't request this, you can safely ignore this email.</p>
-    </div>
-  `;
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  );
 
-  return getTransporter().sendMail({
-    from: MAIL_FROM,
-    to,
-    subject,
-    html,
+  oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+  return gmail;
+};
+
+const buildRawMessage = ({ to, subject, text }) => {
+  const lines = [
+    `From: ${process.env.GOOGLE_EMAIL}`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/plain; charset=utf-8",
+    "",
+    text,
+  ];
+
+  return Buffer.from(lines.join("\n"))
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+};
+
+const sendEmail = async (to, subject, text) => {
+  const gmail = await createGmailClient();
+  const raw = buildRawMessage({ to, subject, text });
+
+  await gmail.users.messages.send({
+    userId: "me",
+    requestBody: { raw },
   });
 };
 
-const sendWelcomeEmail = async ({ to, name }) => {
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.5;color:#111827">
-      <h2 style="margin:0 0 12px">Welcome to BuildStack, ${name} 👋</h2>
-      <p>Your account is now verified and ready for shipping production projects.</p>
-      <p>Log in anytime to manage your project portfolio and delivery insights.</p>
-    </div>
-  `;
+const sendOtpEmail = async ({ to, otp }) => {
+  const text = [
+    "Your BuildStack verification code",
+    "",
+    `OTP: ${otp}`,
+    "",
+    "This code expires in 5 minutes.",
+    "If you didn't request this code, you can ignore this email.",
+  ].join("\n");
 
-  return getTransporter().sendMail({
-    from: MAIL_FROM,
-    to,
-    subject: "Welcome to BuildStack",
-    html,
-  });
+  await sendEmail(to, "Your BuildStack OTP Code", text);
 };
 
-module.exports = { sendOtpEmail, sendWelcomeEmail };
+const sendWelcomeEmail = async ({ to }) => {
+  const text = [
+    "Welcome to BuildStack!",
+    "",
+    "Your email has been verified successfully.",
+    "You can now continue using your account securely.",
+  ].join("\n");
+
+  await sendEmail(to, "Welcome to BuildStack", text);
+};
+
+module.exports = {
+  sendEmail,
+  sendOtpEmail,
+  sendWelcomeEmail,
+};

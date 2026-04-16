@@ -1,21 +1,12 @@
 const express = require("express");
 const passport = require("passport");
-const {
-  requestSignupOtp,
-  verifySignupOtp,
-  requestLoginOtp,
-  verifyLoginOtp,
-  getMe,
-  oauthSuccess,
-} = require("../controllers/authController");
+const { sendOtp, verifyOtp, getMe, oauthSuccess } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/register/request-otp", requestSignupOtp);
-router.post("/register/verify-otp", verifySignupOtp);
-router.post("/login/request-otp", requestLoginOtp);
-router.post("/login/verify-otp", verifyLoginOtp);
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtp);
 router.get("/me", protect, getMe);
 
 router.get("/oauth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
