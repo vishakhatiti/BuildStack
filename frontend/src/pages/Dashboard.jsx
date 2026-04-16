@@ -1,15 +1,53 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
+import Button from "../components/ui/Button";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, setUser } = useContext(AuthContext);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setIsProfileLoading(true);
+        const { data } = await API.get("/auth/me");
+        setUser(data.user);
+      } catch {
+        logout();
+        navigate("/auth", { replace: true });
+      } finally {
+        setIsProfileLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [logout, navigate, setUser]);
 
   const handleLogout = () => {
     logout();
     navigate("/auth", { replace: true });
   };
+
+  if (isProfileLoading) {
+    return (
+      <div className="page dashboard-page">
+        <header className="dashboard-header">
+          <div className="skeleton-line long" />
+          <div className="skeleton-line short" />
+        </header>
+        <section className="dashboard-layout">
+          <article className="panel skeleton-panel">
+            <div className="skeleton-line medium" />
+            <div className="skeleton-line long" />
+            <div className="skeleton-line long" />
+          </article>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="page dashboard-page">
@@ -19,9 +57,9 @@ const Dashboard = () => {
           <h1>{`Welcome, ${user?.name || "Builder"}`}</h1>
           <p>{user?.email || "Authenticated with your BuildStack account."}</p>
         </div>
-        <button onClick={handleLogout} type="button" className="btn btn-ghost">
+        <Button onClick={handleLogout} type="button" variant="ghost">
           Logout
-        </button>
+        </Button>
       </header>
 
       <section className="dashboard-layout">

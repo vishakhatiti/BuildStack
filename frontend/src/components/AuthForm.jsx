@@ -1,6 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { API_BASE_URL } from "../services/api";
 import API from "../services/api";
+import Button from "./ui/Button";
+import Input from "./ui/Input";
+import OTPInput from "./ui/OTPInput";
+
+const OTP_COOLDOWN_SECONDS = 30;
 
 const initialForm = {
   name: "",
@@ -8,41 +13,96 @@ const initialForm = {
   otp: "",
 };
 
+const maskEmail = (email = "") => {
+  const [name, domain] = email.split("@");
+  if (!name || !domain) return "your email";
+  return `${name.charAt(0)}***@${domain}`;
+};
+
+const normalizeError = (message = "") => {
+  const lower = message.toLowerCase();
+  if (lower.includes("expired")) return "Expired OTP. Request a new code and try again.";
+  if (lower.includes("invalid otp") || lower.includes("invalid or expired otp")) return "Wrong OTP. Please check the code and retry.";
+  return message;
+};
+
 const AuthForm = ({ mode = "login", onSuccess }) => {
   const [form, setForm] = useState(initialForm);
   const [step, setStep] = useState("email");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({ email: "", otp: "", general: "" });
   const [notice, setNotice] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
-  const title = useMemo(() => (mode === "signup" ? "Create your account" : "Welcome back"), [mode]);
+  const title = useMemo(() => (mode === "signup" ? "Create your BuildStack account" : "Welcome back"), [mode]);
+
+  useEffect(() => {
+    if (!cooldown) return undefined;
+    const timer = setInterval(() => {
+      setCooldown((previous) => {
+        if (previous <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  useEffect(() => {
+    setForm((previous) => ({ ...initialForm, name: mode === "signup" ? previous.name : "" }));
+    setStep("email");
+    setErrors({ email: "", otp: "", general: "" });
+    setNotice("");
+    setCooldown(0);
+  }, [mode]);
 
   const update = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const sendOtp = async (event) => {
-    event.preventDefault();
-    setError("");
-    setNotice("");
+  const validateEmailStep = () => {
+    const trimmedEmail = form.email.trim();
+    if (!trimmedEmail) {
+      setErrors({ email: "Invalid email", otp: "", general: "" });
+      return false;
+    }
 
-    if (!form.email) {
-      setError("Email is required.");
-      return;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setErrors({ email: "Invalid email", otp: "", general: "" });
+      return false;
     }
 
     if (mode === "signup" && !form.name.trim()) {
-      setError("Name is required for signup.");
-      return;
+      setErrors({ email: "", otp: "", general: "Name is required for signup." });
+      return false;
     }
+
+    return true;
+  };
+
+  const sendOtp = async (event) => {
+    event.preventDefault();
+    setErrors({ email: "", otp: "", general: "" });
+    setNotice("");
+
+    if (!validateEmailStep()) return;
 
     try {
       setLoading(true);
       await API.post("/auth/send-otp", { email: form.email.trim(), name: form.name.trim() });
       setStep("otp");
-      setNotice("OTP sent. Check your inbox and enter the 6-digit code.");
+      setCooldown(OTP_COOLDOWN_SECONDS);
+      setNotice("OTP sent. Enter the 6-digit code from your inbox.");
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to send OTP. Please try again.");
+      setErrors({
+        email: "",
+        otp: "",
+        general: requestError.response?.data?.message || "Unable to send OTP. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -50,10 +110,10 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
 
   const verifyOtp = async (event) => {
     event.preventDefault();
-    setError("");
+    setErrors({ email: "", otp: "", general: "" });
 
-    if (!form.otp) {
-      setError("OTP is required.");
+    if (form.otp.length !== 6) {
+      setErrors({ email: "", otp: "Wrong OTP. Please enter all 6 digits.", general: "" });
       return;
     }
 
@@ -67,7 +127,30 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
 
       onSuccess(data);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "OTP verification failed.");
+      const friendlyError = normalizeError(requestError.response?.data?.message || "OTP verification failed.");
+      setErrors({ email: "", otp: friendlyError, general: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendOtp = async () => {
+    if (cooldown > 0 || loading) return;
+
+    setErrors({ email: "", otp: "", general: "" });
+    setNotice("");
+
+    try {
+      setLoading(true);
+      await API.post("/auth/send-otp", { email: form.email.trim(), name: form.name.trim() });
+      setCooldown(OTP_COOLDOWN_SECONDS);
+      setNotice("A new OTP has been sent.");
+    } catch (requestError) {
+      setErrors({
+        email: "",
+        otp: "",
+        general: requestError.response?.data?.message || "Unable to resend OTP. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -75,7 +158,7 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
 
   const oauth = (provider) => {
     if (!API_BASE_URL) {
-      setError("Missing VITE_API_URL. OAuth redirect cannot start.");
+      setErrors({ email: "", otp: "", general: "Missing VITE_API_URL. OAuth redirect cannot start." });
       return;
     }
     const cleaned = API_BASE_URL.replace(/\/$/, "");
@@ -83,84 +166,93 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
   };
 
   return (
-    <div className="auth-card">
+    <div className="auth-card fade-in-up">
       <h2>{title}</h2>
-      <p className="auth-subtitle">Secure OTP authentication with real backend integration.</p>
+      <p className="auth-subtitle">We’ll send a 6-digit OTP to your email.</p>
+
+      <div className="auth-progress" aria-label="Authentication steps">
+        <div className={`progress-step ${step === "email" ? "active" : "completed"}`}>
+          <span>1</span>
+          <p>Step 1: Email</p>
+        </div>
+        <div className={`progress-step ${step === "otp" ? "active" : ""}`}>
+          <span>2</span>
+          <p>Step 2: OTP Verification</p>
+        </div>
+      </div>
 
       {step === "email" ? (
         <form onSubmit={sendOtp} className="auth-form">
           {mode === "signup" ? (
-            <label>
-              Name
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                placeholder="Enter your name"
-                autoComplete="name"
-              />
-            </label>
+            <Input
+              id="name"
+              label="Name"
+              type="text"
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="Enter your name"
+              autoComplete="name"
+            />
           ) : null}
 
-          <label>
-            Email
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => update("email", e.target.value)}
-              placeholder="you@company.com"
-              autoComplete="email"
-            />
-          </label>
+          <Input
+            id="email"
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder="you@company.com"
+            autoComplete="email"
+            error={errors.email}
+          />
 
-          <button disabled={loading} type="submit" className="btn btn-primary btn-block">
-            {loading ? <span className="spinner small" /> : null}
+          <Button loading={loading} type="submit" className="btn-block">
             Send OTP
-          </button>
+          </Button>
         </form>
       ) : (
         <form onSubmit={verifyOtp} className="auth-form">
-          <label>
-            OTP
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={6}
-              value={form.otp}
-              onChange={(e) => update("otp", e.target.value)}
-              placeholder="Enter 6-digit OTP"
-            />
-          </label>
+          <p className="otp-meta">Enter the code sent to <strong>{maskEmail(form.email.trim())}</strong>.</p>
 
-          <button disabled={loading} type="submit" className="btn btn-primary btn-block">
-            {loading ? <span className="spinner small" /> : null}
+          <OTPInput value={form.otp} onChange={(nextOtp) => update("otp", nextOtp)} disabled={loading} />
+          {errors.otp ? <p className="form-error inline">{errors.otp}</p> : null}
+
+          <Button loading={loading} type="submit" className="btn-block" disabled={form.otp.length !== 6}>
             Verify OTP
-          </button>
+          </Button>
 
-          <button
-            className="btn btn-ghost btn-block"
-            type="button"
-            onClick={() => {
-              setStep("email");
-              setForm((prev) => ({ ...prev, otp: "" }));
-            }}
-            disabled={loading}
-          >
-            Edit email
-          </button>
+          <div className="otp-actions">
+            <Button variant="ghost" type="button" onClick={resendOtp} disabled={cooldown > 0 || loading}>
+              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
+            </Button>
+            <Button
+              variant="glass"
+              type="button"
+              onClick={() => {
+                setStep("email");
+                setForm((prev) => ({ ...prev, otp: "" }));
+                setErrors({ email: "", otp: "", general: "" });
+              }}
+              disabled={loading}
+            >
+              Edit email
+            </Button>
+          </div>
         </form>
       )}
 
       {notice ? <p className="form-notice">{notice}</p> : null}
-      {error ? <p className="form-error">{error}</p> : null}
+      {errors.general ? <p className="form-error">{errors.general}</p> : null}
 
       <div className="divider">or continue with</div>
 
       <div className="oauth-grid">
         <button className="btn btn-oauth" onClick={() => oauth("google")} type="button">
+          <span aria-hidden="true">G</span>
           Continue with Google
         </button>
         <button className="btn btn-oauth" onClick={() => oauth("github")} type="button">
+          <span aria-hidden="true">⌘</span>
           Continue with GitHub
         </button>
       </div>

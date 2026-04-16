@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated } = useContext(AuthContext);
+  const { login, isAuthenticated, isAuthLoading } = useContext(AuthContext);
 
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const initialTab = params.get("tab") === "signup" ? "signup" : "login";
@@ -29,20 +29,23 @@ const Auth = () => {
   }, [login, navigate, params]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthLoading && isAuthenticated) {
       navigate("/dashboard", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isAuthLoading, navigate]);
 
   return (
-    <div className="page auth-page">
-      <div className="auth-shell">
+    <main className="auth-shell page-fade-in">
+      <section className="auth-intro">
+        <p className="intro-pill">Landing → Auth → OTP → Dashboard</p>
         <h1>Authentication</h1>
-        <p>Choose login or signup and continue with secure OTP flow.</p>
+        <p>Secure OTP sign in designed for daily developer workflows.</p>
 
-        <div className="tabs">
+        <div className="tabs" role="tablist" aria-label="auth mode tabs">
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "login"}
             className={activeTab === "login" ? "tab active" : "tab"}
             onClick={() => setActiveTab("login")}
           >
@@ -50,22 +53,24 @@ const Auth = () => {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "signup"}
             className={activeTab === "signup" ? "tab active" : "tab"}
             onClick={() => setActiveTab("signup")}
           >
             Signup
           </button>
         </div>
+      </section>
 
-        <AuthForm
-          mode={activeTab}
-          onSuccess={(data) => {
-            login(data);
-            navigate("/dashboard", { replace: true });
-          }}
-        />
-      </div>
-    </div>
+      <AuthForm
+        mode={activeTab}
+        onSuccess={(data) => {
+          login(data);
+          navigate("/dashboard", { replace: true });
+        }}
+      />
+    </main>
   );
 };
 
