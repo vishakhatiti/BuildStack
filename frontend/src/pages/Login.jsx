@@ -1,100 +1,147 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import API, { API_BASE_URL } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
+
+const STEPS = {
+  EMAIL: "email",
+  OTP: "otp",
+};
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
 
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(STEPS.EMAIL);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const oauthToken = params.get("token");
-    if (!oauthToken) return;
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
-    const completeOauthLogin = async () => {
-      try {
-        localStorage.setItem("token", oauthToken);
-        const { data } = await API.get("/auth/me");
-        login({ token: oauthToken, user: data.user });
-        navigate("/dashboard", { replace: true });
-      } catch (_error) {
-        setError("OAuth login failed. Please try again.");
-      }
-    };
-
-    completeOauthLogin();
-  }, [location.search, login, navigate]);
-
-  const handleChange = ({ target: { name, value } }) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (event) => {
+  const handleSendOtp = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     setError("");
+    setStatus("");
+    setIsSendingOtp(true);
 
     try {
-      const { data } = await API.post("/auth/login/request-otp", form);
-      navigate("/verify-otp", {
-        state: {
-          otpSessionId: data.otpSessionId,
-          email: data.email,
-          purpose: "login",
-        },
-      });
+      const normalizedEmail = email.trim().toLowerCase();
+      await API.post("/auth/send-otp", { email: normalizedEmail });
+      setEmail(normalizedEmail);
+      setStep(STEPS.OTP);
+      setStatus(`OTP sent to ${normalizedEmail}`);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to start login.");
+      setError(requestError.response?.data?.message || "Unable to send OTP. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setIsSendingOtp(false);
     }
+  };
+
+  const handleVerifyOtp = async (event) => {
+    event.preventDefault();
+    setError("");
+    setStatus("");
+    setIsVerifyingOtp(true);
+
+    try {
+      const { data } = await API.post("/auth/verify-otp", {
+        email,
+        otp,
+      });
+
+      localStorage.setItem("token", data.token);
+      login(data);
+      navigate("/dashboard", { replace: true });
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "OTP verification failed. Please try again.");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const resetToEmailStep = () => {
+    setStep(STEPS.EMAIL);
+    setOtp("");
+    setError("");
+    setStatus("");
   };
 
   return (
     <main className="auth-shell">
       <section className="auth-card fade-in-up">
-        <h1>Welcome back</h1>
-        <p className="auth-subtitle">Sign in with email OTP or continue with your provider.</p>
+        <h1>{step === STEPS.EMAIL ? "Login to BuildStack" : "Verify OTP"}</h1>
+        <p className="auth-subtitle">
+          {step === STEPS.EMAIL
+            ? "Enter your email to receive a one-time password."
+            : `Enter the 6-digit code sent to ${email}.`}
+        </p>
 
         <div className="oauth-stack">
-          <a className="oauth-btn" href={`${API_BASE_URL}/auth/oauth/google`}>
+          <button type="button" className="oauth-btn" disabled aria-disabled="true">
             Continue with Google
-          </a>
-          <a className="oauth-btn github" href={`${API_BASE_URL}/auth/oauth/github`}>
+          </button>
+          <button type="button" className="oauth-btn github" disabled aria-disabled="true">
             Continue with GitHub
-          </a>
+          </button>
         </div>
 
-        <div className="auth-divider">or use email</div>
+        <div className="auth-divider">or use email OTP</div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <input name="email" type="email" placeholder="Work email" value={form.email} onChange={handleChange} required />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            autoComplete="current-password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+        <div className={`auth-step ${step === STEPS.EMAIL ? "is-active" : ""}`}>
+          {step === STEPS.EMAIL ? (
+            <form className="auth-form" onSubmit={handleSendOtp}>
+              <input
+                name="email"
+                type="email"
+                placeholder="you@company.com"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
 
-          {error ? <p className="form-error">{error}</p> : null}
+              {error ? <p className="form-error">{error}</p> : null}
+              {status ? <p className="form-success">{status}</p> : null}
 
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Sending OTP..." : "Continue"}
-          </button>
-        </form>
+              <button type="submit" disabled={isSendingOtp || !email.trim()}>
+                {isSendingOtp ? "Sending OTP..." : "Send OTP"}
+              </button>
+            </form>
+          ) : (
+            <form className="auth-form" onSubmit={handleVerifyOtp}>
+              <input
+                name="otp"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                placeholder="123456"
+                maxLength={6}
+                value={otp}
+                onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))}
+                required
+              />
 
-        <p className="auth-footnote">
-          New to BuildStack? <Link to="/register">Create account</Link>
-        </p>
+              {error ? <p className="form-error">{error}</p> : null}
+              {status ? <p className="form-success">{status}</p> : null}
+
+              <button type="submit" disabled={isVerifyingOtp || otp.length !== 6}>
+                {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
+              </button>
+
+              <button type="button" className="text-btn" onClick={resetToEmailStep}>
+                Use a different email
+              </button>
+            </form>
+          )}
+        </div>
       </section>
     </main>
   );
