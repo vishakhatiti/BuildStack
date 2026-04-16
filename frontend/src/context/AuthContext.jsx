@@ -1,19 +1,15 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import API from "../services/api";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  const setAuthSession = (token, userData) => {
+  const login = ({ token, user: userPayload }) => {
     localStorage.setItem("token", token);
-    setUser(userData);
-  };
-
-  const login = (data) => {
-    setAuthSession(data.token, data.user);
+    setUser(userPayload);
   };
 
   const logout = () => {
@@ -22,9 +18,8 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const bootstrapAuth = async () => {
+    const bootstrap = async () => {
       const token = localStorage.getItem("token");
-
       if (!token) {
         setIsAuthLoading(false);
         return;
@@ -40,14 +35,14 @@ const AuthProvider = ({ children }) => {
       }
     };
 
-    bootstrapAuth();
+    bootstrap();
   }, []);
 
   const value = useMemo(
     () => ({
       user,
-      isAuthenticated: Boolean(user),
       isAuthLoading,
+      isAuthenticated: Boolean(user),
       login,
       logout,
     }),

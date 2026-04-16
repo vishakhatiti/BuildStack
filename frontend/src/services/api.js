@@ -1,13 +1,15 @@
 import axios from "axios";
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL;
+const configuredBase = import.meta.env.VITE_API_URL;
 
-if (!API_BASE_URL) {
-  console.error("Missing VITE_API_URL. Set it to your deployed backend URL ending with /api.");
+if (!configuredBase) {
+  console.error("Missing VITE_API_URL (example: https://your-render-url.onrender.com/api)");
 }
 
+export const API_BASE_URL = configuredBase;
+
 const API = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: configuredBase,
   withCredentials: true,
 });
 
