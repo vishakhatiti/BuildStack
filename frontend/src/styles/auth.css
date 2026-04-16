@@ -27,6 +27,17 @@
   color: #475569;
 }
 
+.auth-step {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.2s ease;
+}
+
+.auth-step.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .auth-form {
   display: grid;
   gap: 12px;
@@ -51,13 +62,21 @@
   cursor: pointer;
 }
 
-.auth-form button:disabled {
+.auth-form button:disabled,
+.oauth-btn:disabled {
   opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .form-error {
   margin: 0;
   color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.form-success {
+  margin: 0;
+  color: #15803d;
   font-size: 0.9rem;
 }
 
@@ -95,6 +114,13 @@
 
 .auth-footnote a {
   color: #1d4ed8;
+}
+
+.text-btn {
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-weight: 500;
 }
 
 .fade-in-up {

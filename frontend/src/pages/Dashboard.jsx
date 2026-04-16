@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
 import "../styles/dashboard.css";
@@ -11,13 +12,12 @@ const defaultStats = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [stats, setStats] = useState(defaultStats);
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [projectForm, setProjectForm] = useState({ name: "", techStack: "", status: "in_progress" });
-  const [isAddingProject, setIsAddingProject] = useState(false);
 
   const statCards = useMemo(
     () => [
@@ -32,11 +32,12 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       setIsLoading(true);
+      setError("");
       const { data } = await API.get("/projects/dashboard");
-      setStats(data.stats);
-      setProjects(data.recentProjects);
-    } catch (_error) {
-      setError("Could not load dashboard data.");
+      setStats(data?.stats || defaultStats);
+      setProjects(data?.recentProjects || []);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Could not load dashboard data.");
     } finally {
       setIsLoading(false);
     }
@@ -46,33 +47,19 @@ const Dashboard = () => {
     loadDashboard();
   }, []);
 
-  const handleAddProject = async (event) => {
-    event.preventDefault();
-    setIsAddingProject(true);
-    setError("");
-
-    try {
-      await API.post("/projects", {
-        ...projectForm,
-        techStack: projectForm.techStack,
-      });
-      setProjectForm({ name: "", techStack: "", status: "in_progress" });
-      await loadDashboard();
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to add project");
-    } finally {
-      setIsAddingProject(false);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
   };
 
   return (
     <div className="dashboard-shell">
       <header className="dashboard-header">
         <div>
-          <h1>{`Welcome back, ${user?.name || "Builder"}`}</h1>
-          <p>Track delivery health and keep your portfolio production-ready.</p>
+          <h1>{`Welcome ${user?.name || "Builder"}`}</h1>
+          <p>{user?.email || "You are signed in with OTP authentication."}</p>
         </div>
-        <button className="logout-btn" onClick={logout} type="button">
+        <button className="logout-btn" onClick={handleLogout} type="button">
           Logout
         </button>
       </header>
@@ -94,13 +81,13 @@ const Dashboard = () => {
           <div className="panel-header">
             <h2>Recent Projects</h2>
             <button type="button" className="ghost-btn" onClick={loadDashboard}>
-              View Projects
+              Refresh
             </button>
           </div>
 
           <div className="project-list">
             {projects.length === 0 ? (
-              <p className="empty-state">No projects yet. Add your first project to start tracking.</p>
+              <p className="empty-state">No projects yet. Stats structure is ready for live data.</p>
             ) : (
               projects.map((project) => (
                 <div key={project._id} className="project-card">
@@ -113,40 +100,6 @@ const Dashboard = () => {
               ))
             )}
           </div>
-        </article>
-
-        <article className="panel">
-          <div className="panel-header">
-            <h2>Quick Actions</h2>
-          </div>
-
-          <form className="quick-form" onSubmit={handleAddProject}>
-            <input
-              type="text"
-              placeholder="Project name"
-              value={projectForm.name}
-              onChange={(event) => setProjectForm((prev) => ({ ...prev, name: event.target.value }))}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Tech stack (comma separated)"
-              value={projectForm.techStack}
-              onChange={(event) => setProjectForm((prev) => ({ ...prev, techStack: event.target.value }))}
-              required
-            />
-            <select
-              value={projectForm.status}
-              onChange={(event) => setProjectForm((prev) => ({ ...prev, status: event.target.value }))}
-            >
-              <option value="in_progress">In Progress</option>
-              <option value="live">Live</option>
-              <option value="failed">Failed</option>
-            </select>
-            <button type="submit" disabled={isAddingProject}>
-              {isAddingProject ? "Adding..." : "Add Project"}
-            </button>
-          </form>
         </article>
       </section>
     </div>
