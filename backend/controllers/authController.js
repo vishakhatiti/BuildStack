@@ -5,6 +5,12 @@ const User = require("../models/User");
 const { sendOtpEmail, sendWelcomeEmail } = require("../utils/emailService");
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
+const REQUIRED_GMAIL_ENV_VARS = [
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "GOOGLE_REFRESH_TOKEN",
+  "GOOGLE_EMAIL",
+];
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
@@ -15,6 +21,21 @@ const signToken = (userId) =>
     expiresIn: "7d",
   });
 
+const assertSendOtpPreconditions = () => {
+  const missingEnvVars = REQUIRED_GMAIL_ENV_VARS.filter((name) => !process.env[name]);
+  if (missingEnvVars.length > 0) {
+    throw new Error(`Missing required Gmail env vars: ${missingEnvVars.join(", ")}`);
+  }
+
+  if (!Otp || typeof Otp.findOneAndUpdate !== "function") {
+    throw new Error("OTP model is not available");
+  }
+
+  if (!Otp.db || Otp.db.readyState !== 1) {
+    throw new Error("MongoDB is not connected");
+  }
+};
+
 const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -24,6 +45,9 @@ const sendOtp = async (req, res) => {
     }
 
     const normalizedEmail = normalizeEmail(email);
+    assertSendOtpPreconditions();
+    console.log("Sending OTP to:", normalizedEmail);
+
     const otp = generateOtp();
     const otpHash = await bcrypt.hash(otp, 12);
 
@@ -45,7 +69,8 @@ const sendOtp = async (req, res) => {
       expiresInSeconds: OTP_EXPIRY_MS / 1000,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Failed to send OTP" });
+    console.error("sendOtp error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 
