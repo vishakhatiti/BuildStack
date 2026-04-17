@@ -20,14 +20,16 @@ const userSchema = new mongoose.Schema(
       default: null,
       select: false,
     },
-    authProvider: {
+    provider: {
       type: String,
-      enum: ["email", "google", "github"],
+      enum: ["google", "github", "email"],
+      required: true,
       default: "email",
     },
-    oauthProviders: {
-      googleId: { type: String, default: null, index: true },
-      githubId: { type: String, default: null, index: true },
+    providerId: {
+      type: String,
+      default: null,
+      index: true,
     },
     isEmailVerified: {
       type: Boolean,
@@ -49,6 +51,11 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
+);
+
+userSchema.index(
+  { provider: 1, providerId: 1 },
+  { unique: true, partialFilterExpression: { providerId: { $type: "string" } } }
 );
 
 module.exports = mongoose.model("User", userSchema);

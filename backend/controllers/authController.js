@@ -109,7 +109,7 @@ const verifyOtp = async (req, res) => {
       user = await User.create({
         name: generatedName,
         email: normalizedEmail,
-        authProvider: "email",
+        provider: "email",
         isEmailVerified: true,
         lastLoginAt: new Date(),
       });
@@ -151,9 +151,13 @@ const getMe = async (req, res) => {
 };
 
 const oauthSuccess = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "OAuth authentication failed" });
+  }
+
   const token = signToken(req.user._id);
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
-  const redirectUrl = `${clientUrl}/login?oauth=success&token=${encodeURIComponent(token)}`;
+  const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173";
+  const redirectUrl = `${frontendUrl}/auth/success?token=${encodeURIComponent(token)}`;
   return res.redirect(redirectUrl);
 };
 
