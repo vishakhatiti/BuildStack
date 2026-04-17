@@ -1,6 +1,7 @@
 const passport = require("passport");
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 const { Strategy: GitHubStrategy } = require("passport-github2");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const extractPrimaryGitHubEmail = (profile) => {
@@ -8,6 +9,11 @@ const extractPrimaryGitHubEmail = (profile) => {
   const verifiedEmail = profile.emails.find((mail) => mail.verified)?.value;
   return verifiedEmail || profile.emails[0].value || null;
 };
+
+const signTokenForUser = (userId) =>
+  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 
 const upsertOauthUser = async ({ provider, providerId, email, name, profile }) => {
   let user = await User.findOne({ provider, providerId });
@@ -76,7 +82,8 @@ const configurePassport = () => {
               profile,
             });
 
-            return done(null, user);
+            const token = signTokenForUser(user._id);
+            return done(null, { token });
           } catch (error) {
             return done(error);
           }
@@ -107,7 +114,8 @@ const configurePassport = () => {
               profile,
             });
 
-            return done(null, user);
+            const token = signTokenForUser(user._id);
+            return done(null, { token });
           } catch (error) {
             return done(error);
           }
@@ -118,3 +126,4 @@ const configurePassport = () => {
 };
 
 module.exports = configurePassport;
+module.exports.signTokenForUser = signTokenForUser;
