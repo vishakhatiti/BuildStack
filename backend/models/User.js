@@ -16,36 +16,24 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      minlength: 6,
+      minlength: 8,
       default: null,
       select: false,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     provider: {
       type: String,
-      enum: ["google", "github", "email"],
+      enum: ["local", "google", "github"],
+      default: "local",
       required: true,
-      default: "email",
     },
     providerId: {
       type: String,
       default: null,
       index: true,
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    bio: {
-      type: String,
-      default: "",
-    },
-    github: {
-      type: String,
-      default: "",
-    },
-    lastLoginAt: {
-      type: Date,
-      default: null,
     },
   },
   {

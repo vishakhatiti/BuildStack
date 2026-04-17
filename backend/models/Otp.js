@@ -7,11 +7,15 @@ const otpSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
-      unique: true,
       index: true,
     },
     otpHash: {
       type: String,
+      required: true,
+    },
+    purpose: {
+      type: String,
+      enum: ["register", "reset"],
       required: true,
     },
     expiresAt: {
@@ -22,5 +26,7 @@ const otpSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+otpSchema.index({ email: 1, purpose: 1 }, { unique: true });
 
 module.exports = mongoose.model("Otp", otpSchema);

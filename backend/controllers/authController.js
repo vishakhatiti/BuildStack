@@ -2,18 +2,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Otp = require("../models/Otp");
 const User = require("../models/User");
-const { sendOtpEmail, sendWelcomeEmail } = require("../utils/emailService");
+const { sendOtpEmail, sendPasswordResetOtpEmail } = require("../utils/emailService");
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
-const REQUIRED_GMAIL_ENV_VARS = [
-  "GOOGLE_CLIENT_ID",
-  "GOOGLE_CLIENT_SECRET",
-  "GOOGLE_REFRESH_TOKEN",
-  "GOOGLE_EMAIL",
-];
+const PASSWORD_MIN_LENGTH = 8;
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
-
 const generateOtp = () => `${Math.floor(100000 + Math.random() * 900000)}`;
 
 const signToken = (userId) =>
@@ -21,56 +15,88 @@ const signToken = (userId) =>
     expiresIn: "7d",
   });
 
-const assertSendOtpPreconditions = () => {
-  const missingEnvVars = REQUIRED_GMAIL_ENV_VARS.filter((name) => !process.env[name]);
-  if (missingEnvVars.length > 0) {
-    throw new Error(`Missing required Gmail env vars: ${missingEnvVars.join(", ")}`);
-  }
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if (!Otp || typeof Otp.findOneAndUpdate !== "function") {
-    throw new Error("OTP model is not available");
-  }
+const sanitizeUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  provider: user.provider,
+  isVerified: user.isVerified,
+  createdAt: user.createdAt,
+});
 
-  if (!Otp.db || Otp.db.readyState !== 1) {
-    throw new Error("MongoDB is not connected");
-  }
+const persistOtp = async ({ email, purpose, otp }) => {
+  const otpHash = await bcrypt.hash(otp, 12);
+  await Otp.findOneAndUpdate(
+    { email, purpose },
+    {
+      email,
+      purpose,
+      otpHash,
+      expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 };
 
-const sendOtp = async (req, res) => {
+const register = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+    if (!name?.trim() || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
     }
 
     const normalizedEmail = normalizeEmail(email);
-    assertSendOtpPreconditions();
-    console.log("Sending OTP to:", normalizedEmail);
+    if (!isValidEmail(normalizedEmail)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail }).select("+password");
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    if (existingUser && existingUser.provider !== "local") {
+      return res.status(400).json({
+        message: `This email is registered with ${existingUser.provider}. Continue with OAuth instead.`,
+      });
+    }
+
+    if (existingUser && existingUser.isVerified) {
+      return res.status(409).json({ message: "An account with this email already exists" });
+    }
+
+    if (existingUser) {
+      existingUser.name = name.trim();
+      existingUser.password = hashedPassword;
+      existingUser.isVerified = false;
+      await existingUser.save();
+    } else {
+      await User.create({
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        provider: "local",
+        isVerified: false,
+      });
+    }
 
     const otp = generateOtp();
-    const otpHash = await bcrypt.hash(otp, 12);
-
-    await Otp.findOneAndUpdate(
-      { email: normalizedEmail },
-      {
-        email: normalizedEmail,
-        otpHash,
-        expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-
+    await persistOtp({ email: normalizedEmail, purpose: "register", otp });
     await sendOtpEmail({ to: normalizedEmail, otp });
 
     return res.status(200).json({
-      message: "OTP sent successfully",
+      message: "Registration started. OTP sent to your email.",
       email: normalizedEmail,
       expiresInSeconds: OTP_EXPIRY_MS / 1000,
     });
   } catch (error) {
-    console.error("sendOtp error:", error);
-    return res.status(500).json({ message: error.message });
+    console.error("register error", error);
+    return res.status(500).json({ message: "Unable to register. Please try again." });
   }
 };
 
@@ -83,7 +109,7 @@ const verifyOtp = async (req, res) => {
     }
 
     const normalizedEmail = normalizeEmail(email);
-    const otpRecord = await Otp.findOne({ email: normalizedEmail });
+    const otpRecord = await Otp.findOne({ email: normalizedEmail, purpose: "register" });
 
     if (!otpRecord) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
@@ -91,7 +117,7 @@ const verifyOtp = async (req, res) => {
 
     if (otpRecord.expiresAt.getTime() < Date.now()) {
       await Otp.deleteOne({ _id: otpRecord._id });
-      return res.status(400).json({ message: "OTP expired. Please request a new OTP" });
+      return res.status(400).json({ message: "OTP expired. Please request a new code" });
     }
 
     const isMatch = await bcrypt.compare(otp, otpRecord.otpHash);
@@ -99,55 +125,148 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid OTP" });
     }
 
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user || user.provider !== "local") {
+      return res.status(404).json({ message: "Account not found for OTP verification" });
+    }
+
+    user.isVerified = true;
+    await user.save();
     await Otp.deleteOne({ _id: otpRecord._id });
-
-    let user = await User.findOne({ email: normalizedEmail });
-    let isNewUser = false;
-
-    if (!user) {
-      const generatedName = normalizedEmail.split("@")[0];
-      user = await User.create({
-        name: generatedName,
-        email: normalizedEmail,
-        provider: "email",
-        isEmailVerified: true,
-        lastLoginAt: new Date(),
-      });
-      isNewUser = true;
-    } else {
-      user.isEmailVerified = true;
-      user.lastLoginAt = new Date();
-      await user.save();
-    }
-
-    if (isNewUser) {
-      await sendWelcomeEmail({ to: normalizedEmail });
-    }
 
     const token = signToken(user._id);
 
     return res.status(200).json({
       message: "OTP verified successfully",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: sanitizeUser(user),
     });
   } catch (error) {
+    console.error("verifyOtp error", error);
     return res.status(500).json({ message: "Failed to verify OTP" });
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const user = await User.findOne({ email: normalizedEmail }).select("+password");
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if (user.provider !== "local") {
+      return res.status(400).json({
+        message: `This account uses ${user.provider} OAuth. Continue with OAuth instead.`,
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password || "");
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: "Email is not verified. Please complete OTP verification.",
+      });
+    }
+
+    const token = signToken(user._id);
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    console.error("login error", error);
+    return res.status(500).json({ message: "Unable to login. Please try again." });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (user && user.provider === "local") {
+      const otp = generateOtp();
+      await persistOtp({ email: normalizedEmail, purpose: "reset", otp });
+      await sendPasswordResetOtpEmail({ to: normalizedEmail, otp });
+    }
+
+    return res.status(200).json({
+      message: "If an account exists, a password reset OTP has been sent.",
+      email: normalizedEmail,
+      expiresInSeconds: OTP_EXPIRY_MS / 1000,
+    });
+  } catch (error) {
+    console.error("forgotPassword error", error);
+    return res.status(500).json({ message: "Unable to process request." });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Email, OTP, and newPassword are required" });
+    }
+
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const otpRecord = await Otp.findOne({ email: normalizedEmail, purpose: "reset" });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    if (otpRecord.expiresAt.getTime() < Date.now()) {
+      await Otp.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({ message: "OTP expired. Please request a new code" });
+    }
+
+    const isOtpMatch = await bcrypt.compare(otp, otpRecord.otpHash);
+    if (!isOtpMatch) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail }).select("+password");
+    if (!user || user.provider !== "local") {
+      return res.status(404).json({ message: "Local account not found for this email" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 12);
+    user.isVerified = true;
+    await user.save();
+    await Otp.deleteOne({ _id: otpRecord._id });
+
+    return res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("resetPassword error", error);
+    return res.status(500).json({ message: "Unable to reset password" });
+  }
+};
+
 const getMe = async (req, res) => {
-  return res.json({
-    user: {
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-    },
-  });
+  return res.status(200).json({ user: sanitizeUser(req.user) });
 };
 
 const oauthSuccess = async (req, res) => {
@@ -156,14 +275,21 @@ const oauthSuccess = async (req, res) => {
   }
 
   const token = signToken(req.user._id);
-  const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173";
-  const redirectUrl = `${frontendUrl}/auth/success?token=${encodeURIComponent(token)}`;
-  return res.redirect(redirectUrl);
+  const frontendUrl = process.env.FRONTEND_URL;
+
+  if (!frontendUrl) {
+    return res.status(500).json({ message: "FRONTEND_URL is not configured" });
+  }
+
+  return res.redirect(`${frontendUrl}/auth/success?token=${encodeURIComponent(token)}`);
 };
 
 module.exports = {
-  sendOtp,
+  register,
   verifyOtp,
+  login,
+  forgotPassword,
+  resetPassword,
   getMe,
   oauthSuccess,
 };

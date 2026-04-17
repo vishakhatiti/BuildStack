@@ -9,15 +9,9 @@ const Navbar = () => {
           BuildStack
         </Link>
 
-        <nav className="nav-links" aria-label="Primary navigation">
-          <a href="#home">Home</a>
-          <a href="#features">Features</a>
-          <a href="#about">About</a>
-        </nav>
-
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ marginLeft: "auto" }}>
           <Link to="/auth" className="btn btn-ghost btn-sm">
-            Login
+            Sign In
           </Link>
           <Link to="/auth?tab=signup" className="btn btn-primary btn-sm">
             Get Started
