@@ -1,49 +1,81 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Card from "../components/ui/Card";
+
+const features = [
+  {
+    icon: "🧠",
+    title: "OTP-first security",
+    description: "Real email OTP flow with verification and token-based session management.",
+  },
+  {
+    icon: "⚡",
+    title: "OAuth ready",
+    description: "Continue with Google or GitHub using your deployed backend endpoints.",
+  },
+  {
+    icon: "📊",
+    title: "Protected dashboard",
+    description: "Authenticated routing, logout controls, and scalable dashboard layout.",
+  },
+];
 
 const Landing = () => {
   return (
-    <div className="page landing-page" id="home">
+    <div className="landing-page page-fade-in" id="home">
       <Navbar />
 
-      <main className="hero">
-        <p className="badge">Production-grade Auth for BuildStack</p>
-        <h1>Ship secure OTP + OAuth authentication in minutes.</h1>
-        <p>
-          Modern, responsive, and clean authentication experience with email OTP, Google and GitHub OAuth,
-          protected routes, and real backend integration.
-        </p>
-        <div className="hero-actions">
-          <Link className="btn btn-primary" to="/auth?tab=signup">
-            Get Started
-          </Link>
-          <Link className="btn btn-ghost" to="/auth">
-            Login
-          </Link>
+      <main className="hero-section">
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="page hero-content">
+          <p className="badge">Production-grade auth for BuildStack</p>
+          <h1>Track deployments. Ship faster. Stay in control.</h1>
+          <p className="hero-subtext">
+            BuildStack gives teams a focused deployment workflow with secure email OTP and OAuth
+            auth, so releases move quickly without losing visibility.
+          </p>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" to="/auth?tab=signup">
+              Get Started
+            </Link>
+            <Link className="btn btn-ghost" to="/auth">
+              Login
+            </Link>
+          </div>
         </div>
       </main>
 
-      <section id="features" className="section">
-        <h2>Features</h2>
+      <section id="features" className="section page">
+        <div className="section-heading">
+          <p className="section-eyebrow">Core capabilities</p>
+          <h2>Everything your team needs to ship with confidence</h2>
+          <p>
+            BuildStack combines onboarding, OTP authentication, and deployment visibility in one
+            clean interface designed for high-velocity product teams.
+          </p>
+        </div>
+
         <div className="feature-grid">
-          <article>
-            <h3>OTP-first security</h3>
-            <p>Real email OTP flow with verification and token-based session management.</p>
-          </article>
-          <article>
-            <h3>OAuth ready</h3>
-            <p>Continue with Google or GitHub using your deployed backend endpoints.</p>
-          </article>
-          <article>
-            <h3>Protected dashboard</h3>
-            <p>Authenticated routing, logout controls, and scalable dashboard layout.</p>
-          </article>
+          {features.map((feature) => (
+            <Card key={feature.title} as="article" className="feature-card">
+              <span className="feature-icon" aria-hidden="true">
+                {feature.icon}
+              </span>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </Card>
+          ))}
         </div>
       </section>
 
       <section id="about" className="section muted">
-        <h2>About BuildStack</h2>
-        <p>BuildStack helps teams launch and manage projects with secure, seamless onboarding.</p>
+        <div className="page about-panel">
+          <h2>Built for modern startup teams</h2>
+          <p>
+            BuildStack helps engineering teams authenticate securely, monitor release quality, and
+            keep every stakeholder aligned from first commit to production.
+          </p>
+        </div>
       </section>
     </div>
   );

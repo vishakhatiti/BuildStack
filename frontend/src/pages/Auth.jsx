@@ -36,40 +36,43 @@ const Auth = () => {
 
   return (
     <main className="auth-shell page-fade-in">
-      <section className="auth-intro">
-        <p className="intro-pill">Landing → Auth → OTP → Dashboard</p>
-        <h1>Authentication</h1>
-        <p>Secure OTP sign in designed for daily developer workflows.</p>
+      <div className="auth-ambient" aria-hidden="true" />
+      <section className="auth-layout">
+        <div className="auth-intro">
+          <p className="intro-pill">Step 1 → Email · Step 2 → OTP</p>
+          <h1>Secure access with zero friction.</h1>
+          <p>Authenticate your BuildStack workspace with a fast 2-step OTP flow.</p>
 
-        <div className="tabs" role="tablist" aria-label="auth mode tabs">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "login"}
-            className={activeTab === "login" ? "tab active" : "tab"}
-            onClick={() => setActiveTab("login")}
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "signup"}
-            className={activeTab === "signup" ? "tab active" : "tab"}
-            onClick={() => setActiveTab("signup")}
-          >
-            Signup
-          </button>
+          <div className="tabs" role="tablist" aria-label="auth mode tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "login"}
+              className={activeTab === "login" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("login")}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "signup"}
+              className={activeTab === "signup" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("signup")}
+            >
+              Signup
+            </button>
+          </div>
         </div>
-      </section>
 
-      <AuthForm
-        mode={activeTab}
-        onSuccess={(data) => {
-          login(data);
-          navigate("/dashboard", { replace: true });
-        }}
-      />
+        <AuthForm
+          mode={activeTab}
+          onSuccess={(data) => {
+            login(data);
+            navigate("/dashboard", { replace: true });
+          }}
+        />
+      </section>
     </main>
   );
 };

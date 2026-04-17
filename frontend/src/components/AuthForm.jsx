@@ -3,6 +3,7 @@ import API from "../services/api";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import OTPInput from "./ui/OTPInput";
+import Card from "./ui/Card";
 
 const OTP_COOLDOWN_SECONDS = 30;
 const BACKEND_URL = "https://buildstack-kmdz.onrender.com";
@@ -162,9 +163,9 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
   };
 
   return (
-    <div className="auth-card fade-in-up">
+    <Card className="auth-card fade-in-up">
       <h2>{title}</h2>
-      <p className="auth-subtitle">We’ll send a 6-digit OTP to your email.</p>
+      <p className="auth-subtitle">We'll send a 6-digit OTP to your email.</p>
 
       <div className="auth-progress" aria-label="Authentication steps">
         <div className={`progress-step ${step === "email" ? "active" : "completed"}`}>
@@ -252,7 +253,7 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
           Continue with GitHub
         </button>
       </div>
-    </div>
+    </Card>
   );
 };
 

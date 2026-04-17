@@ -8,7 +8,10 @@ const OTPInput = ({ value, onChange, disabled = false }) => {
 
   useEffect(() => {
     refs.current = refs.current.slice(0, OTP_LENGTH);
-  }, []);
+    if (!value && !disabled) {
+      refs.current[0]?.focus();
+    }
+  }, [value, disabled]);
 
   const focusIndex = (index) => {
     refs.current[index]?.focus();
@@ -21,6 +24,7 @@ const OTPInput = ({ value, onChange, disabled = false }) => {
 
   const handleChange = (index, rawValue) => {
     const clean = rawValue.replace(/\D/g, "");
+
     if (!clean) {
       const next = [...digits];
       next[index] = "";
@@ -42,6 +46,7 @@ const OTPInput = ({ value, onChange, disabled = false }) => {
     const next = [...digits];
     next[index] = clean;
     setDigits(next);
+
     if (index < OTP_LENGTH - 1) {
       focusIndex(index + 1);
     }
@@ -60,7 +65,8 @@ const OTPInput = ({ value, onChange, disabled = false }) => {
     event.preventDefault();
     const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
     if (!pasted) return;
-    const next = pasted.padEnd(OTP_LENGTH, "").split("");
+
+    const next = Array.from({ length: OTP_LENGTH }, (_, index) => pasted[index] || "");
     setDigits(next);
     focusIndex(Math.min(pasted.length - 1, OTP_LENGTH - 1));
   };
@@ -75,6 +81,7 @@ const OTPInput = ({ value, onChange, disabled = false }) => {
           }}
           type="text"
           inputMode="numeric"
+          autoComplete={index === 0 ? "one-time-code" : "off"}
           maxLength={1}
           className="otp-digit"
           value={digit}
