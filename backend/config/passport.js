@@ -1,7 +1,6 @@
 const passport = require("passport");
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 const { Strategy: GitHubStrategy } = require("passport-github2");
-const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const extractPrimaryGitHubEmail = (profile) => {
@@ -10,12 +9,7 @@ const extractPrimaryGitHubEmail = (profile) => {
   return verifiedEmail || profile.emails[0].value || null;
 };
 
-const signTokenForUser = (userId) =>
-  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-
-const upsertOauthUser = async ({ provider, providerId, email, name, profile }) => {
+const upsertOauthUser = async ({ provider, providerId, email, name }) => {
   let user = await User.findOne({ provider, providerId });
 
   if (!user && email) {
@@ -28,19 +22,13 @@ const upsertOauthUser = async ({ provider, providerId, email, name, profile }) =
       email: email.toLowerCase(),
       provider,
       providerId,
-      isEmailVerified: true,
-      github: provider === "github" ? profile.username || "" : "",
-      lastLoginAt: new Date(),
+      isVerified: true,
     });
   } else {
     user.name = user.name || name;
     user.provider = provider;
     user.providerId = providerId;
-    user.isEmailVerified = true;
-    user.lastLoginAt = new Date();
-    if (provider === "github" && !user.github && profile.username) {
-      user.github = profile.username;
-    }
+    user.isVerified = true;
   }
 
   await user.save();
@@ -48,19 +36,6 @@ const upsertOauthUser = async ({ provider, providerId, email, name, profile }) =
 };
 
 const configurePassport = () => {
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const user = await User.findById(id);
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  });
-
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(
       new GoogleStrategy(
@@ -79,11 +54,9 @@ const configurePassport = () => {
               providerId: profile.id,
               email,
               name: profile.displayName || email.split("@")[0],
-              profile,
             });
 
-            const token = signTokenForUser(user._id);
-            return done(null, { token });
+            return done(null, user);
           } catch (error) {
             return done(error);
           }
@@ -103,19 +76,17 @@ const configurePassport = () => {
         },
         async (_accessToken, _refreshToken, profile, done) => {
           try {
-            const primaryEmail = extractPrimaryGitHubEmail(profile);
-            if (!primaryEmail) return done(new Error("GitHub account missing email"));
+            const email = extractPrimaryGitHubEmail(profile);
+            if (!email) return done(new Error("GitHub account missing email"));
 
             const user = await upsertOauthUser({
               provider: "github",
               providerId: profile.id,
-              email: primaryEmail,
-              name: profile.displayName || profile.username,
-              profile,
+              email,
+              name: profile.displayName || profile.username || email.split("@")[0],
             });
 
-            const token = signTokenForUser(user._id);
-            return done(null, { token });
+            return done(null, user);
           } catch (error) {
             return done(error);
           }
@@ -126,4 +97,3 @@ const configurePassport = () => {
 };
 
 module.exports = configurePassport;
-module.exports.signTokenForUser = signTokenForUser;

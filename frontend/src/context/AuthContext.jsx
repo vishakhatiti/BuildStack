@@ -20,15 +20,26 @@ const AuthProvider = ({ children }) => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const login = ({ token, user: userPayload }) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userPayload));
-    setUser(userPayload);
+    if (token) {
+      localStorage.setItem("token", token);
+    }
+    if (userPayload) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userPayload));
+      setUser(userPayload);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem(USER_STORAGE_KEY);
     setUser(null);
+  };
+
+  const refreshUser = async () => {
+    const { data } = await API.get("/auth/me");
+    setUser(data.user);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+    return data.user;
   };
 
   useEffect(() => {
@@ -40,9 +51,7 @@ const AuthProvider = ({ children }) => {
       }
 
       try {
-        const { data } = await API.get("/auth/me");
-        setUser(data.user);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+        await refreshUser();
       } catch {
         logout();
       } finally {
@@ -61,6 +70,7 @@ const AuthProvider = ({ children }) => {
       login,
       logout,
       setUser,
+      refreshUser,
     }),
     [user, isAuthLoading]
   );
