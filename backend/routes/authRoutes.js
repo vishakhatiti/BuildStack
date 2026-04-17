@@ -9,16 +9,16 @@ router.post("/send-otp", sendOtp);
 router.post("/verify-otp", verifyOtp);
 router.get("/me", protect, getMe);
 
-router.get("/oauth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 router.get(
-  "/oauth/google/callback",
+  "/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: "/api/auth/oauth/failure" }),
   oauthSuccess
 );
 
-router.get("/oauth/github", passport.authenticate("github", { scope: ["user:email"], session: false }));
+router.get("/github", passport.authenticate("github", { scope: ["user:email"], session: false }));
 router.get(
-  "/oauth/github/callback",
+  "/github/callback",
   passport.authenticate("github", { session: false, failureRedirect: "/api/auth/oauth/failure" }),
   oauthSuccess
 );

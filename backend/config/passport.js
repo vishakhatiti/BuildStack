@@ -3,47 +3,65 @@ const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 const { Strategy: GitHubStrategy } = require("passport-github2");
 const User = require("../models/User");
 
+const extractPrimaryGitHubEmail = (profile) => {
+  if (!profile.emails || profile.emails.length === 0) return null;
+  const verifiedEmail = profile.emails.find((mail) => mail.verified)?.value;
+  return verifiedEmail || profile.emails[0].value || null;
+};
+
 const upsertOauthUser = async ({ provider, providerId, email, name, profile }) => {
-  let user = await User.findOne({ email });
+  let user = await User.findOne({ provider, providerId });
+
+  if (!user && email) {
+    user = await User.findOne({ email: email.toLowerCase() });
+  }
 
   if (!user) {
-    user = await User.create({
+    user = new User({
       name,
-      email,
-      authProvider: provider,
+      email: email.toLowerCase(),
+      provider,
+      providerId,
       isEmailVerified: true,
-      oauthProviders: {
-        googleId: provider === "google" ? providerId : null,
-        githubId: provider === "github" ? providerId : null,
-      },
       github: provider === "github" ? profile.username || "" : "",
+      lastLoginAt: new Date(),
     });
+  } else {
+    user.name = user.name || name;
+    user.provider = provider;
+    user.providerId = providerId;
+    user.isEmailVerified = true;
+    user.lastLoginAt = new Date();
+    if (provider === "github" && !user.github && profile.username) {
+      user.github = profile.username;
+    }
   }
 
-  if (provider === "google" && !user.oauthProviders.googleId) {
-    user.oauthProviders.googleId = providerId;
-  }
-
-  if (provider === "github" && !user.oauthProviders.githubId) {
-    user.oauthProviders.githubId = providerId;
-    if (!user.github && profile.username) user.github = profile.username;
-  }
-
-  if (!user.isEmailVerified) user.isEmailVerified = true;
-  user.lastLoginAt = new Date();
   await user.save();
-
   return user;
 };
 
 const configurePassport = () => {
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await User.findById(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
+
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(
       new GoogleStrategy(
         {
           clientID: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: process.env.GOOGLE_CALLBACK_URL,
+          callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
         },
         async (_accessToken, _refreshToken, profile, done) => {
           try {
@@ -73,12 +91,12 @@ const configurePassport = () => {
         {
           clientID: process.env.GITHUB_CLIENT_ID,
           clientSecret: process.env.GITHUB_CLIENT_SECRET,
-          callbackURL: process.env.GITHUB_CALLBACK_URL,
+          callbackURL: process.env.GITHUB_CALLBACK_URL || "/api/auth/github/callback",
           scope: ["user:email"],
         },
         async (_accessToken, _refreshToken, profile, done) => {
           try {
-            const primaryEmail = profile.emails?.find((mail) => mail.verified)?.value || profile.emails?.[0]?.value;
+            const primaryEmail = extractPrimaryGitHubEmail(profile);
             if (!primaryEmail) return done(new Error("GitHub account missing email"));
 
             const user = await upsertOauthUser({
