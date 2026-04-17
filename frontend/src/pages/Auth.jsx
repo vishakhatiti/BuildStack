@@ -6,6 +6,7 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import OTPInput from "../components/ui/OTPInput";
 import Card from "../components/ui/Card";
+import OAuthButton from "../components/ui/OAuthButton";
 
 const OTP_COOLDOWN_SECONDS = 30;
 
@@ -272,14 +273,16 @@ const Auth = () => {
             </form>
           )}
 
-          <div className="divider">or continue with</div>
+          <div className="auth-divider" role="separator" aria-label="or continue with">
+            <span>or continue with</span>
+          </div>
           <div className="oauth-grid">
-            <button className="btn btn-oauth" type="button" onClick={() => oauth("google")}>
+            <OAuthButton provider="google" onClick={() => oauth("google")}>
               Continue with Google
-            </button>
-            <button className="btn btn-oauth" type="button" onClick={() => oauth("github")}>
+            </OAuthButton>
+            <OAuthButton provider="github" onClick={() => oauth("github")}>
               Continue with GitHub
-            </button>
+            </OAuthButton>
           </div>
 
           {message ? <p className="form-notice">{message}</p> : null}
