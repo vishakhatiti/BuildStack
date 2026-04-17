@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { API_BASE_URL } from "../services/api";
 import API from "../services/api";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import OTPInput from "./ui/OTPInput";
 
 const OTP_COOLDOWN_SECONDS = 30;
+const BACKEND_URL = "https://buildstack-kmdz.onrender.com";
 
 const initialForm = {
   name: "",
@@ -157,12 +157,8 @@ const AuthForm = ({ mode = "login", onSuccess }) => {
   };
 
   const oauth = (provider) => {
-    if (!API_BASE_URL) {
-      setErrors({ email: "", otp: "", general: "Missing VITE_API_URL. OAuth redirect cannot start." });
-      return;
-    }
-    const cleaned = API_BASE_URL.replace(/\/$/, "");
-    window.location.href = `${cleaned}/auth/oauth/${provider}`;
+    const cleaned = BACKEND_URL.replace(/\/$/, "");
+    window.location.href = `${cleaned}/api/auth/${provider}`;
   };
 
   return (
