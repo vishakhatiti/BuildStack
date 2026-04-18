@@ -2,11 +2,9 @@ import axios from "axios";
 
 const configuredBase = import.meta.env.VITE_API_URL;
 
-if (!configuredBase) {
-  throw new Error("Missing VITE_API_URL, expected deployed Render API URL ending with /api");
-}
+const DEFAULT_API_BASE_URL = "https://buildstack-kmdz.onrender.com/api";
 
-export const API_BASE_URL = configuredBase.replace(/\/$/, "");
+export const API_BASE_URL = (configuredBase || DEFAULT_API_BASE_URL).replace(/\/$/, "");
 export const AUTH_BASE_URL = API_BASE_URL.replace(/\/api$/, "");
 
 const API = axios.create({
