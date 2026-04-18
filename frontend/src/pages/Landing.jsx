@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Features from "../components/Features";
+import CTA from "../components/CTA";
+import Footer from "../components/Footer";
 import OAuthButton from "../components/ui/OAuthButton";
 import { AUTH_BASE_URL } from "../services/api";
 
@@ -12,19 +15,15 @@ const Landing = () => {
     <div className="landing-page page-fade-in" id="home">
       <Navbar />
 
-      <main className="hero-section premium-hero">
-        <div className="hero-noise" aria-hidden="true" />
-        <div className="hero-glow" aria-hidden="true" />
-        <div className="hero-orb" aria-hidden="true" />
-
-        <div className="page hero-content hero-enter">
-          <p className="badge">Secure SaaS authentication</p>
+      <main className="hero-section">
+        <div className="page hero-content">
+          <p className="badge">Project management for fast-moving teams</p>
           <h1>
-            Build, deploy, and <span>scale with confidence.</span>
+            Launch faster with <span>clarity, control, and confidence.</span>
           </h1>
           <p className="hero-subtext">
-            BuildStack gives modern teams secure onboarding, OTP verification, password recovery,
-            and social sign-in from day one.
+            BuildStack helps modern teams manage projects, track deployment outcomes, and collaborate
+            in one clean workspace built for execution.
           </p>
 
           <div className="hero-actions">
@@ -40,7 +39,7 @@ const Landing = () => {
             <span>or continue with</span>
           </div>
 
-          <div className="oauth-grid hero-oauth-grid">
+          <div className="oauth-grid">
             <OAuthButton provider="google" onClick={() => oauth("google")}>
               Continue with Google
             </OAuthButton>
@@ -49,9 +48,13 @@ const Landing = () => {
             </OAuthButton>
           </div>
 
-          <p className="trust-line">Trusted by developers building modern apps</p>
+          <p className="trust-line">Trusted by startup teams shipping every day</p>
         </div>
       </main>
+
+      <Features />
+      <CTA />
+      <Footer />
     </div>
   );
 };

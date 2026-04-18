@@ -1,50 +1,40 @@
 const featureItems = [
   {
-    icon: "PR",
-    title: "Project Registry",
+    icon: "⚡",
+    title: "Realtime Project Visibility",
     description:
-      "Create a workspace per product, attach repository URLs, and keep owners, priorities, and release scope visible for every build cycle.",
+      "Monitor deployment states and project progress in one view so teams can react quickly and ship with confidence.",
   },
   {
-    icon: "DS",
-    title: "Deployment Status Board",
+    icon: "🧩",
+    title: "Unified Workflow",
     description:
-      "Track each release as Live, Failed, or In Progress so engineers can triage blockers immediately instead of chasing status in chat.",
+      "Manage repositories, owners, and release details in a structured workspace built for engineering execution.",
   },
   {
-    icon: "DI",
-    title: "Dashboard Insights",
+    icon: "📈",
+    title: "Actionable Insights",
     description:
-      "See success rate trends, stalled deployments, and current throughput in one dashboard to make data-backed shipping decisions.",
-  },
-  {
-    icon: "AL",
-    title: "Actionable Alerts",
-    description:
-      "Surface failed or long-running deployments early, helping teams resolve risk before customers notice downtime or broken releases.",
+      "Get clear performance signals from your dashboard to spot blockers, reduce failed releases, and improve throughput.",
   },
 ];
 
 const Features = () => {
   return (
-    <section className="section reveal" id="features">
+    <section className="section" id="features">
       <div className="container">
         <div className="section-heading">
-          <p className="eyebrow">Core capabilities</p>
-          <h2>Everything your team needs to ship reliably</h2>
+          <p className="badge">Features</p>
+          <h2>Everything needed to run a high-performing product team.</h2>
           <p className="section-intro">
-            BuildStack focuses on release execution: project context, deployment state visibility,
-            and operational insights that reduce uncertainty across every sprint.
+            BuildStack combines clean UX and practical workflow tooling so your team can make
+            better delivery decisions.
           </p>
         </div>
 
         <div className="features-grid">
-          {featureItems.map((feature, index) => (
-            <article
-              className="feature-card reveal"
-              key={feature.title}
-              style={{ "--stagger": `${index * 0.1}s` }}
-            >
+          {featureItems.map((feature) => (
+            <article className="feature-card" key={feature.title}>
               <span className="feature-icon" aria-hidden="true">
                 {feature.icon}
               </span>

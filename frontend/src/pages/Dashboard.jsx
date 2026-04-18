@@ -39,9 +39,13 @@ const Dashboard = () => {
           <div className="skeleton-line short" />
         </header>
         <section className="dashboard-layout">
-          <article className="panel skeleton-panel">
+          <article className="panel">
             <div className="skeleton-line medium" />
             <div className="skeleton-line long" />
+            <div className="skeleton-line long" />
+          </article>
+          <article className="panel">
+            <div className="skeleton-line medium" />
             <div className="skeleton-line long" />
           </article>
         </section>
@@ -50,12 +54,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="page dashboard-page">
+    <div className="page dashboard-page page-fade-in">
       <header className="dashboard-header">
         <div>
-          <p className="badge">Protected Area</p>
-          <h1>{`Welcome, ${user?.name || "Builder"}`}</h1>
-          <p>{user?.email || "Authenticated with your BuildStack account."}</p>
+          <p className="badge">Dashboard</p>
+          <h1>{`Welcome back, ${user?.name || "Builder"}`}</h1>
+          <p>{user?.email || "You are authenticated with BuildStack."}</p>
         </div>
         <Button onClick={handleLogout} type="button" variant="ghost">
           Logout
@@ -64,8 +68,18 @@ const Dashboard = () => {
 
       <section className="dashboard-layout">
         <article className="panel">
-          <h2>Workspace</h2>
-          <p>This dashboard shell is ready for your upcoming BuildStack features and modules.</p>
+          <h2>Workspace Overview</h2>
+          <p>
+            Your account is active and ready. Connect your team workflows and start managing
+            projects from a single, structured workspace.
+          </p>
+        </article>
+        <article className="panel">
+          <h2>Account Security</h2>
+          <p>
+            BuildStack keeps your session protected with authentication and verification flows.
+            Continue using secure sign-in methods to keep workspace access safe.
+          </p>
         </article>
       </section>
     </div>
