@@ -39,6 +39,7 @@ const Login = () => {
       setStep(STEPS.OTP);
       setStatus(`OTP sent to ${normalizedEmail}`);
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to send OTP. Please try again.");
     } finally {
       setIsSendingOtp(false);
@@ -61,6 +62,7 @@ const Login = () => {
       login(data);
       navigate("/dashboard", { replace: true });
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "OTP verification failed. Please try again.");
     } finally {
       setIsVerifyingOtp(false);

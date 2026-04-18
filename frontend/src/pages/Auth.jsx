@@ -61,6 +61,7 @@ const Auth = () => {
       login(data);
       navigate("/dashboard", { replace: true });
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Sign in failed. Please try again.");
     } finally {
       setLoading(false);
@@ -87,6 +88,7 @@ const Auth = () => {
       setCooldown(OTP_COOLDOWN_SECONDS);
       setMessage("OTP sent to your email. Enter the 6-digit code to verify your account.");
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to start signup.");
     } finally {
       setLoading(false);
@@ -111,6 +113,7 @@ const Auth = () => {
       login(data);
       navigate("/dashboard", { replace: true });
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "OTP verification failed.");
     } finally {
       setLoading(false);
@@ -131,6 +134,7 @@ const Auth = () => {
       setCooldown(OTP_COOLDOWN_SECONDS);
       setMessage("A new OTP has been sent.");
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to resend OTP.");
     } finally {
       setLoading(false);
@@ -232,6 +236,7 @@ const Auth = () => {
                 label="Password"
                 type="password"
                 autoComplete="new-password"
+                minLength={8}
                 value={signUpForm.password}
                 onChange={(event) =>
                   setSignUpForm((prev) => ({ ...prev, password: event.target.value }))

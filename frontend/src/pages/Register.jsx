@@ -27,6 +27,7 @@ const Register = () => {
         },
       });
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to start registration.");
     } finally {
       setIsSubmitting(false);

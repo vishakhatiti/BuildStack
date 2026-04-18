@@ -40,8 +40,36 @@ const persistOtp = async ({ email, purpose, otp }) => {
   );
 };
 
+const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister = false }) => {
+  const normalizedEmail = normalizeEmail(email);
+  const user = await User.findOne({ email: normalizedEmail }).select("+password");
+
+  if (!user) {
+    return { user: null, email: normalizedEmail, sent: false };
+  }
+
+  if (user.provider !== "local") {
+    throw new Error(`This account uses ${user.provider} OAuth. Continue with OAuth instead.`);
+  }
+
+  if (purpose === "login" && !user.isVerified) {
+    throw new Error("Email is not verified. Please complete signup OTP verification first.");
+  }
+
+  if (purpose === "register" && !allowUnverifiedForRegister && user.isVerified) {
+    throw new Error("An account with this email already exists");
+  }
+
+  const otp = generateOtp();
+  await persistOtp({ email: normalizedEmail, purpose, otp });
+  await sendOtpEmail({ to: normalizedEmail, otp });
+
+  return { user, email: normalizedEmail, sent: true };
+};
+
 const register = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
     const { name, email, password } = req.body;
 
     if (!name?.trim() || !email || !password) {
@@ -102,6 +130,7 @@ const register = async (req, res) => {
 
 const verifyOtp = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -109,7 +138,13 @@ const verifyOtp = async (req, res) => {
     }
 
     const normalizedEmail = normalizeEmail(email);
-    const otpRecord = await Otp.findOne({ email: normalizedEmail, purpose: "register" });
+    let otpRecord = await Otp.findOne({ email: normalizedEmail, purpose: "register" });
+    let purpose = "register";
+
+    if (!otpRecord) {
+      otpRecord = await Otp.findOne({ email: normalizedEmail, purpose: "login" });
+      purpose = "login";
+    }
 
     if (!otpRecord) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
@@ -130,14 +165,16 @@ const verifyOtp = async (req, res) => {
       return res.status(404).json({ message: "Account not found for OTP verification" });
     }
 
-    user.isVerified = true;
+    if (purpose === "register") {
+      user.isVerified = true;
+    }
     await user.save();
     await Otp.deleteOne({ _id: otpRecord._id });
 
     const token = signToken(user._id);
 
     return res.status(200).json({
-      message: "OTP verified successfully",
+      message: purpose === "register" ? "OTP verified successfully" : "Login successful",
       token,
       user: sanitizeUser(user),
     });
@@ -147,8 +184,33 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+const sendOtp = async (req, res) => {
+  try {
+    console.log("Request body:", req.body);
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const { user } = await issueOtpForPurpose({ email, purpose: "login" });
+    if (!user) {
+      return res.status(404).json({ message: "No account found for this email" });
+    }
+
+    return res.status(200).json({
+      message: "OTP sent successfully",
+      email: normalizeEmail(email),
+      expiresInSeconds: OTP_EXPIRY_MS / 1000,
+    });
+  } catch (error) {
+    console.error("sendOtp error", error);
+    return res.status(400).json({ message: error.message || "Unable to send OTP" });
+  }
+};
+
 const login = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -193,6 +255,7 @@ const login = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
     const { email } = req.body;
 
     if (!email) {
@@ -221,6 +284,7 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
     const { email, otp, newPassword } = req.body;
 
     if (!email || !otp || !newPassword) {
@@ -286,6 +350,7 @@ const oauthSuccess = async (req, res) => {
 
 module.exports = {
   register,
+  sendOtp,
   verifyOtp,
   login,
   forgotPassword,

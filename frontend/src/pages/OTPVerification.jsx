@@ -37,6 +37,7 @@ const OTPVerification = () => {
       login(data);
       navigate("/dashboard", { replace: true });
     } catch (verifyError) {
+      console.log(verifyError.response?.data);
       setError(verifyError.response?.data?.message || "OTP verification failed.");
     } finally {
       setIsSubmitting(false);

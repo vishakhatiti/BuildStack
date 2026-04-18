@@ -18,9 +18,22 @@ connectDB();
 configurePassport();
 
 app.use(express.json());
+const allowedOrigins = [
+  "https://buildstack-tan.vercel.app",
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+        return normalizedOrigin === allowedOrigin.replace(/\/$/, "");
+      });
+      return callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
+    },
     credentials: true,
   })
 );
