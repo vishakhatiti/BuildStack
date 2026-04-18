@@ -148,6 +148,22 @@ const Auth = () => {
             Email/password authentication, OTP account verification, forgot password recovery, and
             social login with Google and GitHub.
           </p>
+          <div className="auth-preview" aria-hidden="true">
+            <div className="preview-topbar">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="preview-grid">
+              <div className="preview-panel preview-panel-lg" />
+              <div className="preview-stack">
+                <div className="preview-panel" />
+                <div className="preview-panel" />
+              </div>
+            </div>
+            <div className="preview-chart" />
+          </div>
+          <p className="trust-line">Trusted by developers building modern apps</p>
           <div className="tabs" role="tablist" aria-label="Authentication tab selector">
             <button
               type="button"
@@ -173,8 +189,9 @@ const Auth = () => {
         </div>
 
         <Card className="auth-card fade-in-up">
-          {activeTab === "signin" ? (
-            <form className="auth-form" onSubmit={handleSignIn}>
+          <div className="auth-content-fade" key={`${activeTab}-${signUpStep}`}>
+            {activeTab === "signin" ? (
+              <form className="auth-form" onSubmit={handleSignIn}>
               <h2>Welcome back</h2>
               <Input
                 id="signin-email"
@@ -202,9 +219,9 @@ const Auth = () => {
               <Button loading={loading} type="submit" className="btn-block">
                 Sign In
               </Button>
-            </form>
-          ) : signUpStep === "form" ? (
-            <form className="auth-form" onSubmit={handleSignUpStart}>
+              </form>
+            ) : signUpStep === "form" ? (
+              <form className="auth-form" onSubmit={handleSignUpStart}>
               <h2>Create account</h2>
               <Input
                 id="signup-name"
@@ -249,9 +266,9 @@ const Auth = () => {
               <Button loading={loading} type="submit" className="btn-block">
                 Send OTP
               </Button>
-            </form>
-          ) : (
-            <form className="auth-form" onSubmit={handleVerifySignUpOtp}>
+              </form>
+            ) : (
+              <form className="auth-form" onSubmit={handleVerifySignUpOtp}>
               <h2>Verify your email</h2>
               <p className="otp-meta">Enter the OTP sent to {signUpForm.email}.</p>
               <OTPInput
@@ -270,8 +287,9 @@ const Auth = () => {
                   Edit details
                 </Button>
               </div>
-            </form>
-          )}
+              </form>
+            )}
+          </div>
 
           <div className="auth-divider" role="separator" aria-label="or continue with">
             <span>or continue with</span>
