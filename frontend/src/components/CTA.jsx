@@ -1,17 +1,19 @@
+import { Link } from "react-router-dom";
+
 const CTA = () => {
   return (
-    <section className="section cta-section reveal" id="get-started">
+    <section className="section" id="get-started">
       <div className="container">
-        <div className="cta-card reveal">
-          <p className="eyebrow">Ready to reduce release guesswork?</p>
-          <h2>Use BuildStack to keep every deployment accountable.</h2>
+        <div className="cta-card">
+          <p className="badge">Get started</p>
+          <h2>Start managing your projects today.</h2>
           <p>
-            Start with one repository, track status transitions in real time, and give your team a
-            shared dashboard for faster incident response and healthier releases.
+            Create your workspace, onboard your team, and bring every deployment decision into one
+            premium dashboard experience.
           </p>
-          <button className="btn btn-primary" type="button">
-            Start Tracking Deployments
-          </button>
+          <Link className="btn btn-primary" to="/auth?tab=signup">
+            Start with BuildStack
+          </Link>
         </div>
       </div>
     </section>

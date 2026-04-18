@@ -148,21 +148,7 @@ const Auth = () => {
             Email/password authentication, OTP account verification, forgot password recovery, and
             social login with Google and GitHub.
           </p>
-          <div className="auth-preview" aria-hidden="true">
-            <div className="preview-topbar">
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="preview-grid">
-              <div className="preview-panel preview-panel-lg" />
-              <div className="preview-stack">
-                <div className="preview-panel" />
-                <div className="preview-panel" />
-              </div>
-            </div>
-            <div className="preview-chart" />
-          </div>
+          <div className="auth-preview" aria-hidden="true" />
           <p className="trust-line">Trusted by developers building modern apps</p>
           <div className="tabs" role="tablist" aria-label="Authentication tab selector">
             <button
