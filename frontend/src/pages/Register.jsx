@@ -18,7 +18,7 @@ const Register = () => {
     setError("");
 
     try {
-      const { data } = await API.post("/auth/register/request-otp", form);
+      const { data } = await API.post("/auth/register", form);
       navigate("/verify-otp", {
         state: {
           otpSessionId: data.otpSessionId,
@@ -28,7 +28,7 @@ const Register = () => {
       });
     } catch (requestError) {
       console.log(requestError.response?.data);
-      setError(requestError.response?.data?.message || "Unable to start registration.");
+      setError(requestError.response?.data?.message || "Unable to start signup.");
     } finally {
       setIsSubmitting(false);
     }
