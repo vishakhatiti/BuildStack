@@ -40,24 +40,6 @@ const persistOtp = async ({ email, purpose, otp }) => {
   );
 };
 
-const sendOtpWithResponseHandling = async ({ res, email, otp, failureMessage }) => {
-  console.log("Sending OTP to:", email);
-
-  try {
-    await sendOtpEmail({ to: email, otp });
-    console.log("OTP email sent");
-    console.log("Email sent successfully");
-    return true;
-  } catch (error) {
-    console.error("Email failed:", error);
-    res.status(500).json({
-      message: failureMessage || "Failed to send OTP email",
-      error: error.message,
-    });
-    return false;
-  }
-};
-
 const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister = false }) => {
   const normalizedEmail = normalizeEmail(email);
   const user = await User.findOne({ email: normalizedEmail }).select("+password");
@@ -89,7 +71,7 @@ const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister =
 
 const register = async (req, res) => {
   try {
-    console.log("Register body:", req.body);
+    console.log("Register request:", req.body);
     const { name, email, password } = req.body;
 
     if (!name?.trim() || !email || !password) {
@@ -133,27 +115,27 @@ const register = async (req, res) => {
       });
     }
 
-    const otp = generateOtp();
-    await persistOtp({ email: normalizedEmail, purpose: "register", otp });
-
-    const emailSent = await sendOtpWithResponseHandling({
-      res,
-      email: normalizedEmail,
-      otp,
-      failureMessage: "Failed to send OTP email",
-    });
-    if (!emailSent) {
-      return;
+    try {
+      const otp = generateOtp();
+      await persistOtp({ email: normalizedEmail, purpose: "register", otp });
+      await sendOtpEmail({ to: normalizedEmail, otp });
+    } catch (error) {
+      throw new Error("Email sending failed");
     }
 
     return res.status(200).json({
-      message: "OTP sent",
+      success: true,
+      message: "OTP sent successfully",
       email: normalizedEmail,
       expiresInSeconds: OTP_EXPIRY_MS / 1000,
     });
   } catch (error) {
-    console.error("register error", error);
-    return res.status(500).json({ message: "Unable to register. Please try again." });
+    console.error("Register error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+      error: error.message,
+    });
   }
 };
 
