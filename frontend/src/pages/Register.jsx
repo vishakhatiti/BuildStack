@@ -18,17 +18,23 @@ const Register = () => {
     setError("");
 
     try {
-      const { data } = await API.post("/auth/register", form);
-      navigate("/verify-otp", {
-        state: {
-          otpSessionId: data.otpSessionId,
-          email: data.email,
-          purpose: "signup",
-        },
-      });
+      console.log("Request data:", form);
+      const res = await API.post("/auth/register", form);
+      console.log("Signup success:", res.data);
+
+      if (res.data.success) {
+        navigate("/auth?tab=signup", {
+          state: {
+            email: res.data.email,
+            otpStarted: true,
+          },
+        });
+      } else {
+        setError(res.data.message || "Unable to start signup");
+      }
     } catch (requestError) {
-      console.log(requestError.response?.data);
-      setError(requestError.response?.data?.message || "Unable to start signup.");
+      console.log("Signup error:", requestError.response?.data);
+      setError(requestError.response?.data?.message || "Unable to start signup");
     } finally {
       setIsSubmitting(false);
     }

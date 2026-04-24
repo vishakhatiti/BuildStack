@@ -79,17 +79,26 @@ const Auth = () => {
 
     try {
       setLoading(true);
-      await API.post("/auth/register", {
+      const payload = {
         name: signUpForm.name,
         email: signUpForm.email,
         password: signUpForm.password,
-      });
-      setSignUpStep("otp");
-      setCooldown(OTP_COOLDOWN_SECONDS);
-      setMessage("OTP sent to your email. Enter the 6-digit code to verify your account.");
+      };
+      console.log("Request data:", payload);
+
+      const res = await API.post("/auth/register", payload);
+      console.log("Signup success:", res.data);
+
+      if (res.data.success) {
+        setSignUpStep("otp");
+        setCooldown(OTP_COOLDOWN_SECONDS);
+        setMessage("OTP sent to your email. Enter the 6-digit code to verify your account.");
+      } else {
+        setError(res.data.message || "Unable to start signup");
+      }
     } catch (requestError) {
-      console.log(requestError.response?.data);
-      setError(requestError.response?.data?.message || "Unable to start signup.");
+      console.log("Signup error:", requestError.response?.data);
+      setError(requestError.response?.data?.message || "Unable to start signup");
     } finally {
       setLoading(false);
     }

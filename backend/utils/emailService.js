@@ -68,18 +68,22 @@ const sendEmail = async (to, subject, text) => {
 };
 
 const sendOtpEmail = async ({ to, otp }) => {
-  await sendEmail(
-    to,
-    "BuildStack email verification OTP",
-    [
-      "Your BuildStack email verification code is:",
-      "",
-      `${otp}`,
-      "",
-      "This code expires in 5 minutes.",
-      "If you did not request this, you can ignore this email.",
-    ].join("\n")
-  );
+  try {
+    await sendEmail(
+      to,
+      "BuildStack email verification OTP",
+      [
+        "Your BuildStack email verification code is:",
+        "",
+        `${otp}`,
+        "",
+        "This code expires in 5 minutes.",
+        "If you did not request this, you can ignore this email.",
+      ].join("\n")
+    );
+  } catch (error) {
+    throw new Error("Email sending failed");
+  }
 };
 
 const sendPasswordResetOtpEmail = async ({ to, otp }) => {
