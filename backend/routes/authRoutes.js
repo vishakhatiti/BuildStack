@@ -13,6 +13,12 @@ const {
 const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const ensureOauthStrategy = (provider) => (req, res, next) => {
+  if (!passport._strategy(provider)) {
+    return res.status(503).json({ message: `${provider} OAuth is not configured on the server` });
+  }
+  return next();
+};
 
 router.post("/register", register);
 router.post("/send-otp", sendOtp);
@@ -22,9 +28,10 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.get("/me", protect, getMe);
 
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google", ensureOauthStrategy("google"), passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get(
   "/google/callback",
+  ensureOauthStrategy("google"),
   passport.authenticate("google", {
     session: false,
     failureRedirect: "/api/auth/oauth/failure",
@@ -32,9 +39,10 @@ router.get(
   oauthSuccess
 );
 
-router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+router.get("/github", ensureOauthStrategy("github"), passport.authenticate("github", { scope: ["user:email"] }));
 router.get(
   "/github/callback",
+  ensureOauthStrategy("github"),
   passport.authenticate("github", {
     session: false,
     failureRedirect: "/api/auth/oauth/failure",

@@ -119,14 +119,11 @@ const register = async (req, res) => {
     try {
       await sendOtpEmail({ to: normalizedEmail, otp });
     } catch (emailError) {
-      console.error("register sendOtpEmail error", emailError);
-      return res.status(500).json({
-        message: "Signup started, but OTP email could not be sent. Please try again.",
-      });
+      console.error("Error:", emailError);
     }
 
     return res.status(200).json({
-      message: "Registration started. OTP sent to your email.",
+      message: "OTP sent",
       email: normalizedEmail,
       expiresInSeconds: OTP_EXPIRY_MS / 1000,
     });
@@ -276,7 +273,11 @@ const forgotPassword = async (req, res) => {
     if (user && user.provider === "local") {
       const otp = generateOtp();
       await persistOtp({ email: normalizedEmail, purpose: "reset", otp });
-      await sendPasswordResetOtpEmail({ to: normalizedEmail, otp });
+      try {
+        await sendPasswordResetOtpEmail({ to: normalizedEmail, otp });
+      } catch (emailError) {
+        console.error("Error:", emailError);
+      }
     }
 
     return res.status(200).json({

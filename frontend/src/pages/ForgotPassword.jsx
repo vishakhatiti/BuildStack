@@ -41,6 +41,7 @@ const ForgotPassword = () => {
       setCooldown(OTP_COOLDOWN_SECONDS);
       setMessage("If your account exists, an OTP has been sent to your email.");
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Failed to send OTP.");
     } finally {
       setLoading(false);
@@ -56,6 +57,7 @@ const ForgotPassword = () => {
       setMessage("Password reset successful. Redirecting to sign in...");
       setTimeout(() => navigate("/auth", { replace: true }), 1200);
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to reset password.");
     } finally {
       setLoading(false);
@@ -71,6 +73,7 @@ const ForgotPassword = () => {
       setCooldown(OTP_COOLDOWN_SECONDS);
       setMessage("OTP resent.");
     } catch (requestError) {
+      console.log(requestError.response?.data);
       setError(requestError.response?.data?.message || "Unable to resend OTP.");
     } finally {
       setLoading(false);

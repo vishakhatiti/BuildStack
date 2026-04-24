@@ -17,7 +17,7 @@ const resolveApiBaseUrl = () => {
       console.warn("VITE_API_URL points to localhost in production. Falling back to deployed API URL.");
       return DEFAULT_API_BASE_URL;
     }
-  } catch (_error) {
+  } catch {
     // If URL parsing fails, keep backward compatibility and let Axios surface the request error.
   }
 
