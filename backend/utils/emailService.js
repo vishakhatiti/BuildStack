@@ -17,14 +17,22 @@ const assertEmailEnv = () => {
 const createGmailClient = () => {
   assertEmailEnv();
 
-  const oauth2Client = new google.auth.OAuth2(
+  const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
   );
 
-  oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+  oAuth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
-  return google.gmail({ version: "v1", auth: oauth2Client });
+  return oAuth2Client;
+};
+
+const getGmailClient = async () => {
+  const oAuth2Client = createGmailClient();
+  const accessToken = await oAuth2Client.getAccessToken();
+  console.log("Access Token:", accessToken?.token || accessToken);
+
+  return google.gmail({ version: "v1", auth: oAuth2Client });
 };
 
 const buildRawMessage = ({ to, subject, text }) => {
@@ -46,7 +54,11 @@ const buildRawMessage = ({ to, subject, text }) => {
 };
 
 const sendEmail = async (to, subject, text) => {
-  const gmail = createGmailClient();
+  if (process.env.GOOGLE_EMAIL !== process.env.GMAIL_SENDER_EMAIL && process.env.GMAIL_SENDER_EMAIL) {
+    throw new Error("GOOGLE_EMAIL must match the OAuth sender account");
+  }
+
+  const gmail = await getGmailClient();
   const raw = buildRawMessage({ to, subject, text });
 
   await gmail.users.messages.send({
