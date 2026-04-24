@@ -32,7 +32,9 @@ app.use(
       const isAllowed = allowedOrigins.some((allowedOrigin) => {
         return normalizedOrigin === allowedOrigin.replace(/\/$/, "");
       });
-      return callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
+      const isVercelPreview = /^https:\/\/buildstack-[a-z0-9-]+\.vercel\.app$/i.test(normalizedOrigin);
+      const shouldAllow = isAllowed || isVercelPreview;
+      return callback(shouldAllow ? null : new Error("Not allowed by CORS"), shouldAllow);
     },
     credentials: true,
   })

@@ -69,7 +69,7 @@ const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister =
 
 const register = async (req, res) => {
   try {
-    console.log("Request body:", req.body);
+    console.log("Register body:", req.body);
     const { name, email, password } = req.body;
 
     if (!name?.trim() || !email || !password) {
@@ -115,7 +115,15 @@ const register = async (req, res) => {
 
     const otp = generateOtp();
     await persistOtp({ email: normalizedEmail, purpose: "register", otp });
-    await sendOtpEmail({ to: normalizedEmail, otp });
+
+    try {
+      await sendOtpEmail({ to: normalizedEmail, otp });
+    } catch (emailError) {
+      console.error("register sendOtpEmail error", emailError);
+      return res.status(500).json({
+        message: "Signup started, but OTP email could not be sent. Please try again.",
+      });
+    }
 
     return res.status(200).json({
       message: "Registration started. OTP sent to your email.",
