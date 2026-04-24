@@ -40,6 +40,24 @@ const persistOtp = async ({ email, purpose, otp }) => {
   );
 };
 
+const sendOtpWithResponseHandling = async ({ res, email, otp, failureMessage }) => {
+  console.log("Sending OTP to:", email);
+
+  try {
+    await sendOtpEmail({ to: email, otp });
+    console.log("OTP email sent");
+    console.log("Email sent successfully");
+    return true;
+  } catch (error) {
+    console.error("Email failed:", error);
+    res.status(500).json({
+      message: failureMessage || "Failed to send OTP email",
+      error: error.message,
+    });
+    return false;
+  }
+};
+
 const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister = false }) => {
   const normalizedEmail = normalizeEmail(email);
   const user = await User.findOne({ email: normalizedEmail }).select("+password");
@@ -62,7 +80,9 @@ const issueOtpForPurpose = async ({ email, purpose, allowUnverifiedForRegister =
 
   const otp = generateOtp();
   await persistOtp({ email: normalizedEmail, purpose, otp });
+  console.log("Sending OTP to:", normalizedEmail);
   await sendOtpEmail({ to: normalizedEmail, otp });
+  console.log("OTP email sent");
 
   return { user, email: normalizedEmail, sent: true };
 };
@@ -116,10 +136,14 @@ const register = async (req, res) => {
     const otp = generateOtp();
     await persistOtp({ email: normalizedEmail, purpose: "register", otp });
 
-    try {
-      await sendOtpEmail({ to: normalizedEmail, otp });
-    } catch (emailError) {
-      console.error("Error:", emailError);
+    const emailSent = await sendOtpWithResponseHandling({
+      res,
+      email: normalizedEmail,
+      otp,
+      failureMessage: "Failed to send OTP email",
+    });
+    if (!emailSent) {
+      return;
     }
 
     return res.status(200).json({
@@ -273,10 +297,16 @@ const forgotPassword = async (req, res) => {
     if (user && user.provider === "local") {
       const otp = generateOtp();
       await persistOtp({ email: normalizedEmail, purpose: "reset", otp });
+      console.log("Sending OTP to:", normalizedEmail);
       try {
         await sendPasswordResetOtpEmail({ to: normalizedEmail, otp });
+        console.log("OTP email sent");
       } catch (emailError) {
-        console.error("Error:", emailError);
+        console.error("Email failed:", emailError);
+        return res.status(500).json({
+          message: "Failed to send OTP email",
+          error: emailError.message,
+        });
       }
     }
 
