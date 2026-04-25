@@ -15,7 +15,10 @@ const protect = require("../middleware/authMiddleware");
 const router = express.Router();
 const ensureOauthStrategy = (provider) => (req, res, next) => {
   if (!passport._strategy(provider)) {
-    return res.status(503).json({ message: `${provider} OAuth is not configured on the server` });
+    return res.status(500).json({
+      success: false,
+      message: `${provider} OAuth is not configured on the server`,
+    });
   }
   return next();
 };
@@ -51,7 +54,7 @@ router.get(
 );
 
 router.get("/oauth/failure", (_req, res) => {
-  res.status(401).json({ message: "OAuth authentication failed" });
+  res.status(401).json({ success: false, message: "OAuth authentication failed" });
 });
 
 module.exports = router;
