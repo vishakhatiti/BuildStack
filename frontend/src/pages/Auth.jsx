@@ -324,19 +324,22 @@ const Auth = () => {
               </div>
 
               <div className="auth-split-right">
-                <h2 className="auth-oauth-title">Continue with</h2>
-                <div className="oauth-grid auth-oauth-grid auth-split-oauth-grid">
-                  <OAuthButton provider="google" className="auth-split-oauth-btn" onClick={() => launchOAuth("google")}>
-                    Continue with Google
-                  </OAuthButton>
-                  <OAuthButton provider="github" className="auth-split-oauth-btn" onClick={() => launchOAuth("github")}>
-                    Continue with GitHub
-                  </OAuthButton>
+                <div className="auth-oauth-content">
+                  <h2 className="auth-oauth-title">Continue with</h2>
+                  <p className="auth-oauth-subtext">Use your social account to sign in quickly</p>
+                  <div className="oauth-grid auth-oauth-grid auth-split-oauth-grid">
+                    <OAuthButton provider="google" className="auth-split-oauth-btn" onClick={() => launchOAuth("google")}>
+                      Continue with Google
+                    </OAuthButton>
+                    <OAuthButton provider="github" className="auth-split-oauth-btn" onClick={() => launchOAuth("github")}>
+                      Continue with GitHub
+                    </OAuthButton>
+                  </div>
                 </div>
               </div>
             </section>
           ) : (
-            <section className="auth-panel" aria-hidden={false}>
+            <section className="auth-panel auth-signup-panel" aria-hidden={false}>
               <h1 className="auth-title">{isOtpStep ? "Verify your email" : "Create your account"}</h1>
               <p className="auth-subtext">
                 {isOtpStep
