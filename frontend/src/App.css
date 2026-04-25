@@ -500,3 +500,31 @@ h1 {
     padding: 16px;
   }
 }
+
+.otp-input-group {
+  display: grid;
+  gap: 10px;
+}
+
+.otp-input-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(42px, 1fr));
+  gap: 10px;
+}
+
+.otp-digit-input {
+  border-radius: 12px;
+  border: 1px solid rgba(147, 161, 187, 0.35);
+  background: rgba(10, 15, 28, 0.75);
+  color: #f8fafc;
+  height: 48px;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.otp-digit-input:focus {
+  outline: none;
+  border-color: rgba(91, 140, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.2);
+}
