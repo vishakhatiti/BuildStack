@@ -275,13 +275,13 @@ h1 {
 
 .auth-container {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
 }
 
 .clean-auth-card,
 .dashboard-card {
-  width: min(420px, 100%);
-  padding: clamp(24px, 5vw, 32px);
+  width: min(400px, 100%);
+  padding: clamp(20px, 4vw, 26px);
 }
 
 .auth-backlink {
@@ -293,7 +293,7 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-  margin: 22px 0;
+  margin: 16px 0 14px;
   padding: 5px;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -382,7 +382,7 @@ h1 {
 
 .auth-panel {
   width: 100%;
-  padding-top: 4px;
+  padding-top: 2px;
   overflow: hidden;
 }
 
@@ -442,7 +442,7 @@ h1 {
 
 .auth-form {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .auth-primary-action {
@@ -484,7 +484,7 @@ h1 {
 }
 
 .auth-oauth-section {
-  margin-top: 20px;
+  margin-top: 14px;
 }
 
 .auth-oauth-grid {
@@ -501,6 +501,58 @@ h1 {
   }
 }
 
+
+.signup-progress {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.signup-step-count {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9fb2d8;
+  letter-spacing: 0.01em;
+}
+
+.signup-steps-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.signup-step-pill {
+  font-size: 0.74rem;
+  color: #8ca1c7;
+  border: 1px solid rgba(147, 161, 187, 0.24);
+  border-radius: 999px;
+  padding: 4px 0;
+  text-align: center;
+  transition: all 0.22s ease;
+}
+
+.signup-step-pill.active {
+  color: #e8efff;
+  border-color: rgba(109, 151, 255, 0.8);
+  background: rgba(91, 140, 255, 0.18);
+}
+
+.signup-step-content {
+  display: grid;
+  gap: 12px;
+  animation: fadeSlide 0.2s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .otp-input-group {
   display: grid;
   gap: 10px;

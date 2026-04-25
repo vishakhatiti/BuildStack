@@ -24,6 +24,12 @@ const initialSignUpForm = {
   confirmPassword: "",
 };
 
+const SIGNUP_STEPS = {
+  PROFILE: 1,
+  PASSWORD: 2,
+  OTP: 3,
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,8 +39,8 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState(query.get("tab") === "signup" ? "signup" : "signin");
   const [signInForm, setSignInForm] = useState(initialSignInForm);
   const [signUpForm, setSignUpForm] = useState(initialSignUpForm);
+  const [signupStep, setSignupStep] = useState(SIGNUP_STEPS.PROFILE);
   const [signupEmail, setSignupEmail] = useState("");
-  const [showOTP, setShowOTP] = useState(false);
   const [otpDigits, setOtpDigits] = useState(Array(OTP_LENGTH).fill(""));
 
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -47,6 +53,7 @@ const Auth = () => {
   const [signUpNotice, setSignUpNotice] = useState("");
 
   const otpRefs = useRef([]);
+  const isOtpStep = signupStep === SIGNUP_STEPS.OTP;
 
   useEffect(() => {
     setActiveTab(query.get("tab") === "signup" ? "signup" : "signin");
@@ -73,26 +80,26 @@ const Auth = () => {
   }, [activeTab, location.pathname, location.search, navigate]);
 
   useEffect(() => {
-    if (!showOTP || resendTimer <= 0) return undefined;
+    if (!isOtpStep || resendTimer <= 0) return undefined;
 
     const intervalId = window.setInterval(() => {
       setResendTimer((previous) => (previous > 0 ? previous - 1 : 0));
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [showOTP, resendTimer]);
+  }, [isOtpStep, resendTimer]);
 
   useEffect(() => {
-    if (!showOTP) return;
+    if (!isOtpStep) return;
     otpRefs.current[0]?.focus();
-  }, [showOTP]);
+  }, [isOtpStep]);
 
   const switchTo = (tab) => {
     setActiveTab(tab);
     setSignInError("");
     setSignUpError("");
     setSignUpNotice("");
-    setShowOTP(false);
+    setSignupStep(SIGNUP_STEPS.PROFILE);
     setOtpDigits(Array(OTP_LENGTH).fill(""));
     setResendTimer(0);
   };
@@ -136,6 +143,22 @@ const Auth = () => {
     }
   };
 
+  const handleContinueSignup = (event) => {
+    event.preventDefault();
+    setSignUpError("");
+
+    const normalizedEmail = signUpForm.email.trim().toLowerCase();
+    const normalizedName = signUpForm.name.trim();
+
+    if (!normalizedName || !normalizedEmail) {
+      setSignUpError("Name and email are required.");
+      return;
+    }
+
+    setSignUpForm((prev) => ({ ...prev, name: normalizedName, email: normalizedEmail }));
+    setSignupStep(SIGNUP_STEPS.PASSWORD);
+  };
+
   const handleSignUp = async (event) => {
     event.preventDefault();
     setSignUpError("");
@@ -144,7 +167,7 @@ const Auth = () => {
     const normalizedEmail = signUpForm.email.trim().toLowerCase();
     const normalizedName = signUpForm.name.trim();
 
-    if (!normalizedName || !normalizedEmail || !signUpForm.password || !signUpForm.confirmPassword) {
+    if (!signUpForm.password || !signUpForm.confirmPassword) {
       setSignUpError("Please complete all fields.");
       return;
     }
@@ -169,7 +192,7 @@ const Auth = () => {
 
       setSignUpForm((prev) => ({ ...prev, name: normalizedName, email: normalizedEmail }));
       setSignupEmail(normalizedEmail);
-      setShowOTP(true);
+      setSignupStep(SIGNUP_STEPS.OTP);
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendTimer(OTP_RESEND_SECONDS);
       setSignUpNotice(data.message || `Account created. Enter the OTP sent to ${normalizedEmail}.`);
@@ -310,13 +333,15 @@ const Auth = () => {
             ← Back to home
           </Link>
 
-          <h1 className="auth-title">{activeTab === "signin" ? "Welcome back" : showOTP ? "Verify your email" : "Create your account"}</h1>
+          <h1 className="auth-title">
+            {activeTab === "signin" ? "Welcome back" : signupStep === SIGNUP_STEPS.OTP ? "Verify your email" : "Create your account"}
+          </h1>
           <p className="auth-subtext">
             {activeTab === "signin"
               ? "Sign in to continue building with your workspace."
-              : showOTP
+              : signupStep === SIGNUP_STEPS.OTP
                 ? `Enter the 6-digit OTP sent to ${signupEmail}.`
-                : "Set up your account and get started in seconds."}
+                : "Set up your account with a quick 2-step flow."}
           </p>
 
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
@@ -394,9 +419,18 @@ const Auth = () => {
             </section>
           ) : (
             <section className="auth-panel" aria-hidden={false}>
-              <form className="auth-form" onSubmit={showOTP ? handleVerifySignupOtp : handleSignUp}>
-                {!showOTP ? (
-                  <>
+              <div className="signup-progress" aria-label="Signup steps">
+                <p className="signup-step-count">{signupStep === SIGNUP_STEPS.OTP ? "Step 3 of 3" : `Step ${signupStep} of 2`}</p>
+                <div className="signup-steps-rail">
+                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PROFILE ? "active" : ""}`}>Step 1</span>
+                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PASSWORD ? "active" : ""}`}>Step 2</span>
+                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.OTP ? "active" : ""}`}>Step 3</span>
+                </div>
+              </div>
+
+              <form className="auth-form" onSubmit={isOtpStep ? handleVerifySignupOtp : signupStep === SIGNUP_STEPS.PROFILE ? handleContinueSignup : handleSignUp}>
+                {signupStep === SIGNUP_STEPS.PROFILE ? (
+                  <div className="signup-step-content" key="signup-profile-step">
                     <Input
                       id="signup-name"
                       label="Name"
@@ -415,6 +449,11 @@ const Auth = () => {
                       value={signUpForm.email}
                       onChange={(event) => updateSignUp("email", event.target.value)}
                     />
+                  </div>
+                ) : null}
+
+                {signupStep === SIGNUP_STEPS.PASSWORD ? (
+                  <div className="signup-step-content" key="signup-password-step">
                     <Input
                       id="signup-password"
                       label="Password"
@@ -433,9 +472,11 @@ const Auth = () => {
                       value={signUpForm.confirmPassword}
                       onChange={(event) => updateSignUp("confirmPassword", event.target.value)}
                     />
-                  </>
-                ) : (
-                  <div className="otp-input-group" onPaste={handleOtpPaste}>
+                  </div>
+                ) : null}
+
+                {isOtpStep ? (
+                  <div className="otp-input-group signup-step-content" onPaste={handleOtpPaste} key="signup-otp-step">
                     <span className="field-hint">Verification Code</span>
                     <div className="otp-input-row">
                       {otpDigits.map((digit, index) => (
@@ -457,12 +498,29 @@ const Auth = () => {
                       ))}
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 {signUpNotice ? <p className="form-notice">{signUpNotice}</p> : null}
                 {signUpError ? <p className="form-error">{signUpError}</p> : null}
 
-                {showOTP ? (
+                {signupStep === SIGNUP_STEPS.PROFILE ? (
+                  <Button type="submit" className="btn-block auth-primary-action">
+                    Continue
+                  </Button>
+                ) : null}
+
+                {signupStep === SIGNUP_STEPS.PASSWORD ? (
+                  <div className="auth-stacked-actions">
+                    <Button loading={isSigningUp} type="submit" className="btn-block auth-primary-action">
+                      Create Account
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={() => setSignupStep(SIGNUP_STEPS.PROFILE)}>
+                      Back
+                    </Button>
+                  </div>
+                ) : null}
+
+                {isOtpStep ? (
                   <div className="auth-stacked-actions">
                     <Button
                       loading={isVerifyingSignup}
@@ -476,11 +534,7 @@ const Auth = () => {
                       {isResendingOtp ? "Resending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
                     </Button>
                   </div>
-                ) : (
-                  <Button loading={isSigningUp} type="submit" className="btn-block auth-primary-action">
-                    Create Account
-                  </Button>
-                )}
+                ) : null}
               </form>
 
               <div className="auth-oauth-section">
