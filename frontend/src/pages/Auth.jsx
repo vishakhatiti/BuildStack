@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import API, { AUTH_BASE_URL } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
@@ -9,6 +9,8 @@ import OAuthButton from "../components/ui/OAuthButton";
 
 const GOOGLE_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/google`;
 const GITHUB_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/github`;
+const OTP_LENGTH = 6;
+const OTP_RESEND_SECONDS = 30;
 
 const initialSignInForm = {
   email: "",
@@ -20,7 +22,6 @@ const initialSignUpForm = {
   email: "",
   password: "",
   confirmPassword: "",
-  otp: "",
 };
 
 const Auth = () => {
@@ -32,14 +33,20 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState(query.get("tab") === "signup" ? "signup" : "signin");
   const [signInForm, setSignInForm] = useState(initialSignInForm);
   const [signUpForm, setSignUpForm] = useState(initialSignUpForm);
+  const [signupEmail, setSignupEmail] = useState("");
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpDigits, setOtpDigits] = useState(Array(OTP_LENGTH).fill(""));
 
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isVerifyingSignup, setIsVerifyingSignup] = useState(false);
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
   const [signInError, setSignInError] = useState("");
   const [signUpError, setSignUpError] = useState("");
   const [signUpNotice, setSignUpNotice] = useState("");
-  const [requiresOtpVerification, setRequiresOtpVerification] = useState(false);
+
+  const otpRefs = useRef([]);
 
   useEffect(() => {
     setActiveTab(query.get("tab") === "signup" ? "signup" : "signin");
@@ -65,11 +72,29 @@ const Auth = () => {
     );
   }, [activeTab, location.pathname, location.search, navigate]);
 
+  useEffect(() => {
+    if (!showOTP || resendTimer <= 0) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setResendTimer((previous) => (previous > 0 ? previous - 1 : 0));
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [showOTP, resendTimer]);
+
+  useEffect(() => {
+    if (!showOTP) return;
+    otpRefs.current[0]?.focus();
+  }, [showOTP]);
+
   const switchTo = (tab) => {
     setActiveTab(tab);
     setSignInError("");
     setSignUpError("");
     setSignUpNotice("");
+    setShowOTP(false);
+    setOtpDigits(Array(OTP_LENGTH).fill(""));
+    setResendTimer(0);
   };
 
   const updateSignIn = (key, value) => {
@@ -79,6 +104,8 @@ const Auth = () => {
   const updateSignUp = (key, value) => {
     setSignUpForm((prev) => ({ ...prev, [key]: value }));
   };
+
+  const otpValue = otpDigits.join("");
 
   const launchOAuth = (provider) => {
     window.location.href = provider === "google" ? GOOGLE_OAUTH_URL : GITHUB_OAUTH_URL;
@@ -140,9 +167,12 @@ const Auth = () => {
         password: signUpForm.password,
       });
 
-      setSignUpForm((prev) => ({ ...prev, name: normalizedName, email: normalizedEmail, otp: "" }));
-      setRequiresOtpVerification(true);
-      setSignUpNotice(data.message || "Account created. Enter the OTP sent to your inbox.");
+      setSignUpForm((prev) => ({ ...prev, name: normalizedName, email: normalizedEmail }));
+      setSignupEmail(normalizedEmail);
+      setShowOTP(true);
+      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setResendTimer(OTP_RESEND_SECONDS);
+      setSignUpNotice(data.message || `Account created. Enter the OTP sent to ${normalizedEmail}.`);
     } catch (requestError) {
       setSignUpError(requestError.response?.data?.message || "Unable to create account. Please try again.");
     } finally {
@@ -154,7 +184,7 @@ const Auth = () => {
     event.preventDefault();
     setSignUpError("");
 
-    if (signUpForm.otp.length !== 6) {
+    if (otpValue.length !== OTP_LENGTH) {
       setSignUpError("Enter the 6-digit OTP sent to your email.");
       return;
     }
@@ -162,35 +192,113 @@ const Auth = () => {
     try {
       setIsVerifyingSignup(true);
       const { data } = await API.post("/auth/verify-otp", {
-        email: signUpForm.email.trim().toLowerCase(),
-        otp: signUpForm.otp,
+        email: signupEmail,
+        otp: otpValue,
       });
 
       login(data);
       navigate("/dashboard", { replace: true });
     } catch (requestError) {
-      setSignUpError(requestError.response?.data?.message || "OTP verification failed. Please try again.");
+      const backendMessage = requestError.response?.data?.message || "OTP verification failed. Please try again.";
+      const normalizedMessage = backendMessage.toLowerCase();
+
+      if (normalizedMessage.includes("expired")) {
+        setSignUpError("Expired OTP. Please resend OTP and try again.");
+      } else if (normalizedMessage.includes("invalid") || normalizedMessage.includes("incorrect")) {
+        setSignUpError("Invalid OTP. Please enter the correct 6-digit code.");
+      } else {
+        setSignUpError(backendMessage);
+      }
     } finally {
       setIsVerifyingSignup(false);
     }
   };
 
   const resendSignupOtp = async () => {
+    if (resendTimer > 0 || !signupEmail) return;
+
     setSignUpError("");
     setSignUpNotice("");
 
     try {
-      setIsSigningUp(true);
-      const { data } = await API.post("/auth/register", {
-        name: signUpForm.name.trim(),
-        email: signUpForm.email.trim().toLowerCase(),
-        password: signUpForm.password,
+      setIsResendingOtp(true);
+      const { data } = await API.post("/auth/send-otp", {
+        email: signupEmail,
       });
-      setSignUpNotice(data.message || "A new OTP has been sent.");
+      setResendTimer(OTP_RESEND_SECONDS);
+      setSignUpNotice(data.message || "A new OTP has been sent to your email.");
     } catch (requestError) {
       setSignUpError(requestError.response?.data?.message || "Unable to resend OTP.");
     } finally {
-      setIsSigningUp(false);
+      setIsResendingOtp(false);
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+    const sanitized = value.replace(/\D/g, "");
+    if (!sanitized) {
+      setOtpDigits((previous) => {
+        const next = [...previous];
+        next[index] = "";
+        return next;
+      });
+      return;
+    }
+
+    setOtpDigits((previous) => {
+      const next = [...previous];
+      let writeIndex = index;
+
+      for (const digit of sanitized.slice(0, OTP_LENGTH - index)) {
+        next[writeIndex] = digit;
+        writeIndex += 1;
+      }
+
+      return next;
+    });
+
+    const nextFocusIndex = Math.min(index + sanitized.length, OTP_LENGTH - 1);
+    otpRefs.current[nextFocusIndex]?.focus();
+  };
+
+  const handleOtpKeyDown = (index, event) => {
+    if (event.key !== "Backspace") return;
+
+    if (otpDigits[index]) {
+      setOtpDigits((previous) => {
+        const next = [...previous];
+        next[index] = "";
+        return next;
+      });
+      return;
+    }
+
+    if (index > 0) {
+      setOtpDigits((previous) => {
+        const next = [...previous];
+        next[index - 1] = "";
+        return next;
+      });
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (event) => {
+    event.preventDefault();
+    const pastedDigits = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    if (!pastedDigits) return;
+
+    setOtpDigits((previous) => {
+      const next = [...previous];
+      for (let index = 0; index < OTP_LENGTH; index += 1) {
+        next[index] = pastedDigits[index] || "";
+      }
+      return next;
+    });
+
+    const focusIndex = Math.min(pastedDigits.length, OTP_LENGTH) - 1;
+    if (focusIndex >= 0) {
+      otpRefs.current[focusIndex]?.focus();
     }
   };
 
@@ -202,11 +310,13 @@ const Auth = () => {
             ← Back to home
           </Link>
 
-          <h1 className="auth-title">{activeTab === "signin" ? "Welcome back" : "Create your account"}</h1>
+          <h1 className="auth-title">{activeTab === "signin" ? "Welcome back" : showOTP ? "Verify your email" : "Create your account"}</h1>
           <p className="auth-subtext">
             {activeTab === "signin"
               ? "Sign in to continue building with your workspace."
-              : "Set up your account and get started in seconds."}
+              : showOTP
+                ? `Enter the 6-digit OTP sent to ${signupEmail}.`
+                : "Set up your account and get started in seconds."}
           </p>
 
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
@@ -284,76 +394,86 @@ const Auth = () => {
             </section>
           ) : (
             <section className="auth-panel" aria-hidden={false}>
-              <form className="auth-form" onSubmit={requiresOtpVerification ? handleVerifySignupOtp : handleSignUp}>
-                <Input
-                  id="signup-name"
-                  label="Name"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="Jane Doe"
-                  value={signUpForm.name}
-                  onChange={(event) => updateSignUp("name", event.target.value)}
-                  disabled={requiresOtpVerification}
-                />
-                <Input
-                  id="signup-email"
-                  label="Email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@company.com"
-                  value={signUpForm.email}
-                  onChange={(event) => updateSignUp("email", event.target.value)}
-                  disabled={requiresOtpVerification}
-                />
-                <Input
-                  id="signup-password"
-                  label="Password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Create a strong password"
-                  value={signUpForm.password}
-                  onChange={(event) => updateSignUp("password", event.target.value)}
-                  disabled={requiresOtpVerification}
-                />
-                <Input
-                  id="signup-confirm-password"
-                  label="Confirm Password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Re-enter your password"
-                  value={signUpForm.confirmPassword}
-                  onChange={(event) => updateSignUp("confirmPassword", event.target.value)}
-                  disabled={requiresOtpVerification}
-                />
-
-                {requiresOtpVerification ? (
-                  <Input
-                    id="signup-otp"
-                    label="Verification Code"
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    placeholder="Enter 6-digit OTP"
-                    value={signUpForm.otp}
-                    onChange={(event) => updateSignUp("otp", event.target.value.replace(/\D/g, ""))}
-                  />
-                ) : null}
+              <form className="auth-form" onSubmit={showOTP ? handleVerifySignupOtp : handleSignUp}>
+                {!showOTP ? (
+                  <>
+                    <Input
+                      id="signup-name"
+                      label="Name"
+                      type="text"
+                      autoComplete="name"
+                      placeholder="Jane Doe"
+                      value={signUpForm.name}
+                      onChange={(event) => updateSignUp("name", event.target.value)}
+                    />
+                    <Input
+                      id="signup-email"
+                      label="Email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@company.com"
+                      value={signUpForm.email}
+                      onChange={(event) => updateSignUp("email", event.target.value)}
+                    />
+                    <Input
+                      id="signup-password"
+                      label="Password"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Create a strong password"
+                      value={signUpForm.password}
+                      onChange={(event) => updateSignUp("password", event.target.value)}
+                    />
+                    <Input
+                      id="signup-confirm-password"
+                      label="Confirm Password"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Re-enter your password"
+                      value={signUpForm.confirmPassword}
+                      onChange={(event) => updateSignUp("confirmPassword", event.target.value)}
+                    />
+                  </>
+                ) : (
+                  <div className="otp-input-group" onPaste={handleOtpPaste}>
+                    <span className="field-hint">Verification Code</span>
+                    <div className="otp-input-row">
+                      {otpDigits.map((digit, index) => (
+                        <input
+                          key={`otp-${index}`}
+                          ref={(element) => {
+                            otpRefs.current[index] = element;
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          className="otp-digit-input"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(event) => handleOtpChange(index, event.target.value)}
+                          onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                          aria-label={`OTP digit ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {signUpNotice ? <p className="form-notice">{signUpNotice}</p> : null}
                 {signUpError ? <p className="form-error">{signUpError}</p> : null}
 
-                {requiresOtpVerification ? (
+                {showOTP ? (
                   <div className="auth-stacked-actions">
                     <Button
                       loading={isVerifyingSignup}
                       type="submit"
                       className="btn-block auth-primary-action"
-                      disabled={signUpForm.otp.length !== 6}
+                      disabled={otpValue.length !== OTP_LENGTH}
                     >
-                      Verify & Continue
+                      Verify
                     </Button>
-                    <Button type="button" variant="ghost" onClick={resendSignupOtp} disabled={isSigningUp}>
-                      {isSigningUp ? "Resending..." : "Resend code"}
+                    <Button type="button" variant="ghost" onClick={resendSignupOtp} disabled={resendTimer > 0 || isResendingOtp}>
+                      {isResendingOtp ? "Resending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
                     </Button>
                   </div>
                 ) : (
