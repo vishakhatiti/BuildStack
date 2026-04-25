@@ -1,9 +1,9 @@
 .dashboard-shell {
   min-height: 100vh;
-  background: #f8fafc;
+  background: #0b1220;
   padding: 24px;
   font-family: Inter, system-ui, sans-serif;
-  color: #0f172a;
+  color: #f9fafb;
 }
 
 .dashboard-header {
@@ -20,7 +20,7 @@
 
 .dashboard-header p {
   margin: 0;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .logout-btn,
@@ -34,8 +34,9 @@
 }
 
 .logout-btn {
-  background: #0f172a;
-  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #f9fafb;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
 .stats-grid {
@@ -46,10 +47,10 @@
 }
 
 .stat-card {
-  background: white;
+  background: rgba(15, 23, 42, 0.85);
   border-radius: 16px;
   padding: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
   gap: 6px;
 }
@@ -58,9 +59,9 @@
   font-size: 1.8rem;
 }
 
-.stat-card.live strong { color: #047857; }
-.stat-card.failed strong { color: #b91c1c; }
-.stat-card.in-progress strong { color: #d97706; }
+.stat-card.live strong { color: #3b82f6; }
+.stat-card.failed strong { color: #60a5fa; }
+.stat-card.in-progress strong { color: #93c5fd; }
 
 .dashboard-grid {
   display: grid;
@@ -69,9 +70,9 @@
 }
 
 .panel {
-  background: white;
+  background: rgba(15, 23, 42, 0.85);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 16px;
 }
 
@@ -87,8 +88,8 @@
 }
 
 .ghost-btn {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f9fafb;
 }
 
 .project-list {
@@ -97,7 +98,7 @@
 }
 
 .project-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 12px;
   display: flex;
@@ -112,7 +113,7 @@
 
 .project-card p {
   margin: 0;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .badge {
@@ -124,18 +125,18 @@
 }
 
 .badge.live {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
 }
 
 .badge.failed {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
 }
 
 .badge.in_progress {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(59, 130, 246, 0.16);
+  color: #dbeafe;
 }
 
 .quick-form {
@@ -145,18 +146,25 @@
 
 .quick-form input,
 .quick-form select {
-  border: 1px solid #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 10px 12px;
 }
 
 .quick-form button {
-  background: linear-gradient(90deg, #1d4ed8, #7c3aed);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white;
 }
 
+.quick-form input:focus,
+.quick-form select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22), 0 0 16px rgba(59, 130, 246, 0.25);
+}
+
 .empty-state {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 @media (max-width: 900px) {

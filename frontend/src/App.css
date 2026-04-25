@@ -82,16 +82,16 @@ a {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-.brand-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+.brand-logo {
+  height: 30px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .nav-actions {
@@ -135,7 +135,8 @@ a {
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
 }
 
 .btn-secondary,
@@ -179,6 +180,14 @@ a {
   border: 1px solid var(--line);
   background: var(--surface-strong);
   box-shadow: var(--shadow-soft);
+}
+
+.hero-brand-logo {
+  height: clamp(80px, 10vw, 96px);
+  width: auto;
+  display: block;
+  margin: 0 auto 16px;
+  object-fit: contain;
 }
 
 .hero-kicker {
@@ -363,6 +372,18 @@ h1 {
   border: 1px solid rgba(147, 161, 187, 0.22);
   box-shadow: 0 26px 60px rgba(2, 8, 23, 0.6);
   overflow: clip;
+}
+
+.auth-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.auth-brand-logo {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
 }
 
 .auth-title {
@@ -609,6 +630,18 @@ h1 {
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   padding: clamp(20px, 5vw, 28px);
   animation: fadeIn 0.3s ease;
+}
+
+.auth-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.auth-brand-logo {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
 }
 
 .auth-title {
@@ -1070,7 +1103,19 @@ h1 {
     gap: 12px;
   }
 
-  .auth-title {
+  .auth-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.auth-brand-logo {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
+}
+
+.auth-title {
     font-size: clamp(1.4rem, 2vw, 1.75rem);
     margin-bottom: 6px;
   }

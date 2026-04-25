@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import OAuthButton from "../components/ui/OAuthButton";
+import logoIcon from "../assets/logo-icon.svg";
+import logoFull from "../assets/logo-full.svg";
 
 const GOOGLE_OAUTH_URL = "https://buildstack-kmdz.onrender.com/api/auth/google";
 const GITHUB_OAUTH_URL = "https://buildstack-kmdz.onrender.com/api/auth/github";
@@ -10,8 +12,8 @@ const Landing = () => {
       <header className="navbar">
         <div className="page navbar-inner">
           <Link to="/" className="brand" aria-label="BuildStack Home">
-            <span className="brand-dot" aria-hidden="true" />
-            BuildStack
+            <img src={logoIcon} alt="BuildStack logo" className="brand-logo" />
+            <span>BuildStack</span>
           </Link>
 
           <nav className="nav-actions" aria-label="Primary navigation">
@@ -27,6 +29,7 @@ const Landing = () => {
 
       <main className="hero-section page">
         <section className="hero-card">
+          <img src={logoFull} alt="BuildStack" className="hero-brand-logo" />
           <p className="hero-kicker">Build software with confidence</p>
           <h1>One secure workspace for teams shipping fast.</h1>
           <p className="hero-subtext">

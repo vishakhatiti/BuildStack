@@ -1,3 +1,4 @@
+import logoIcon from "../assets/logo-icon.svg";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
@@ -5,8 +6,8 @@ const Navbar = () => {
     <header className="navbar">
       <div className="page navbar-inner">
         <Link to="/" className="brand" aria-label="BuildStack Home">
-          <span className="brand-dot" aria-hidden="true" />
-          BuildStack
+          <img src={logoIcon} alt="BuildStack logo" className="brand-logo" />
+          <span>BuildStack</span>
         </Link>
 
         <div className="nav-actions" style={{ marginLeft: "auto" }}>
