@@ -1,15 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import API, { AUTH_BASE_URL } from "../services/api";
+import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import OAuthButton from "../components/ui/OAuthButton";
 import OTPInput from "../components/ui/OTPInput";
-
-const GOOGLE_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/google`;
-const GITHUB_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/github`;
 const OTP_LENGTH = 6;
 const OTP_RESEND_SECONDS = 30;
 
@@ -105,10 +101,6 @@ const Auth = () => {
 
   const updateSignUp = (key, value) => {
     setSignUpForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const launchOAuth = (provider) => {
-    window.location.href = provider === "google" ? GOOGLE_OAUTH_URL : GITHUB_OAUTH_URL;
   };
 
   const handleSignIn = async (event) => {
@@ -256,7 +248,7 @@ const Auth = () => {
         <Link to="/" className="auth-home-link">
           ← Back to Home
         </Link>
-        <Card className="auth-card auth-premium-card auth-split-card">
+        <Card className={`auth-card auth-premium-card auth-compact-card ${activeTab === "signup" ? "auth-card--signup" : "auth-card--signin"}`}>
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
             <button
               type="button"
@@ -279,64 +271,47 @@ const Auth = () => {
           </div>
 
           {activeTab === "signin" ? (
-            <section className="auth-panel auth-split-layout" aria-hidden={false}>
-              <div className="auth-split-left">
-                <h1 className="auth-title">Welcome back</h1>
-                <p className="auth-subtext">Sign in to BuildStack and continue shipping with your team.</p>
+            <section className="auth-panel auth-signin-panel" aria-hidden={false}>
+              <h1 className="auth-title">Welcome back</h1>
+              <p className="auth-subtext">Sign in to BuildStack and continue shipping with your team.</p>
 
-                <form className="auth-form" onSubmit={handleSignIn}>
-                  <Input
-                    id="signin-email"
-                    label="Email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@company.com"
-                    value={signInForm.email}
-                    onChange={(event) => updateSignIn("email", event.target.value)}
-                  />
-                  <Input
-                    id="signin-password"
-                    label="Password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="Enter your password"
-                    value={signInForm.password}
-                    onChange={(event) => updateSignIn("password", event.target.value)}
-                  />
+              <form className="auth-form" onSubmit={handleSignIn}>
+                <Input
+                  id="signin-email"
+                  label="Email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  value={signInForm.email}
+                  onChange={(event) => updateSignIn("email", event.target.value)}
+                />
+                <Input
+                  id="signin-password"
+                  label="Password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={signInForm.password}
+                  onChange={(event) => updateSignIn("password", event.target.value)}
+                />
 
-                  <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
-                    Forgot password?
-                  </Link>
+                <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
+                  Forgot password?
+                </Link>
 
-                  {signInError ? <p className="form-error">{signInError}</p> : null}
+                {signInError ? <p className="form-error">{signInError}</p> : null}
 
-                  <Button loading={isSigningIn} type="submit" className="btn-block auth-primary-action">
-                    Sign In
-                  </Button>
-                </form>
+                <Button loading={isSigningIn} type="submit" className="btn-block auth-primary-action">
+                  Sign In
+                </Button>
+              </form>
 
-                <p className="auth-footnote modern-auth-footnote auth-split-footnote">
-                  Don&apos;t have an account?{" "}
-                  <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
-                    Sign Up
-                  </button>
-                </p>
-              </div>
-
-              <div className="auth-split-right">
-                <div className="auth-oauth-content">
-                  <h2 className="auth-oauth-title">Continue with</h2>
-                  <p className="auth-oauth-subtext">Use your social account to sign in quickly</p>
-                  <div className="oauth-grid auth-oauth-grid auth-split-oauth-grid">
-                    <OAuthButton provider="google" className="auth-split-oauth-btn" onClick={() => launchOAuth("google")}>
-                      Continue with Google
-                    </OAuthButton>
-                    <OAuthButton provider="github" className="auth-split-oauth-btn" onClick={() => launchOAuth("github")}>
-                      Continue with GitHub
-                    </OAuthButton>
-                  </div>
-                </div>
-              </div>
+              <p className="auth-footnote modern-auth-footnote">
+                Don&apos;t have an account?{" "}
+                <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
+                  Sign Up
+                </button>
+              </p>
             </section>
           ) : (
             <section className="auth-panel auth-signup-panel" aria-hidden={false}>
