@@ -639,6 +639,130 @@ h1 {
   padding-top: 2px;
 }
 
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-shell::before {
+  content: "";
+  position: absolute;
+  width: min(900px, 90vw);
+  height: min(900px, 90vw);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(91, 140, 255, 0.22) 0%, rgba(91, 140, 255, 0) 65%);
+  filter: blur(16px);
+  z-index: 0;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 80rem;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  color: #c2d4f7;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.auth-home-link:hover {
+  color: #f8fbff;
+}
+
+.auth-split-card {
+  width: 100%;
+  max-width: 80rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  padding: clamp(18px, 2.6vw, 26px);
+}
+
+.auth-split-layout {
+  display: flex;
+  align-items: stretch;
+}
+
+.auth-split-left,
+.auth-split-right {
+  width: 50%;
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.auth-split-left {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-split-right {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 1px solid rgba(148, 163, 184, 0.22);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.auth-oauth-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.auth-split-oauth-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.oauth-button.auth-split-oauth-btn {
+  min-height: 50px;
+  background: rgba(15, 23, 42, 0.68);
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.oauth-button.auth-split-oauth-btn:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 14px 28px rgba(59, 130, 246, 0.2),
+    0 0 0 1px rgba(129, 140, 248, 0.22);
+}
+
+.auth-split-footnote {
+  text-align: left;
+  margin-top: 2px;
+}
+
+@media (max-width: 900px) {
+  .auth-split-layout {
+    flex-direction: column;
+  }
+
+  .auth-split-left,
+  .auth-split-right {
+    width: 100%;
+    padding: 22px;
+  }
+
+  .auth-split-right {
+    border-left: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .auth-split-footnote {
+    text-align: center;
+  }
+}
+
 .auth-form {
   gap: 10px;
 }

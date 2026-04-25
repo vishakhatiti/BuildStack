@@ -253,18 +253,10 @@ const Auth = () => {
   return (
     <main className="auth-shell page-fade-in">
       <div className="auth-container">
-        <Card className="auth-card clean-auth-card auth-premium-card">
-          <h1 className="auth-title">
-            {activeTab === "signin" ? "Welcome back" : isOtpStep ? "Verify your email" : "Create your account"}
-          </h1>
-          <p className="auth-subtext">
-            {activeTab === "signin"
-              ? "Sign in to BuildStack and continue shipping."
-              : isOtpStep
-                ? `Enter the 6-digit code sent to ${signupEmail}.`
-                : "Get started in under a minute with a simple two-step signup."}
-          </p>
-
+        <Link to="/" className="auth-home-link">
+          ← Back to Home
+        </Link>
+        <Card className="auth-card auth-premium-card auth-split-card">
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
             <button
               type="button"
@@ -287,59 +279,70 @@ const Auth = () => {
           </div>
 
           {activeTab === "signin" ? (
-            <section className="auth-panel" aria-hidden={false}>
-              <form className="auth-form" onSubmit={handleSignIn}>
-                <Input
-                  id="signin-email"
-                  label="Email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@company.com"
-                  value={signInForm.email}
-                  onChange={(event) => updateSignIn("email", event.target.value)}
-                />
-                <Input
-                  id="signin-password"
-                  label="Password"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={signInForm.password}
-                  onChange={(event) => updateSignIn("password", event.target.value)}
-                />
+            <section className="auth-panel auth-split-layout" aria-hidden={false}>
+              <div className="auth-split-left">
+                <h1 className="auth-title">Welcome back</h1>
+                <p className="auth-subtext">Sign in to BuildStack and continue shipping with your team.</p>
 
-                <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
-                  Forgot password?
-                </Link>
+                <form className="auth-form" onSubmit={handleSignIn}>
+                  <Input
+                    id="signin-email"
+                    label="Email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@company.com"
+                    value={signInForm.email}
+                    onChange={(event) => updateSignIn("email", event.target.value)}
+                  />
+                  <Input
+                    id="signin-password"
+                    label="Password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={signInForm.password}
+                    onChange={(event) => updateSignIn("password", event.target.value)}
+                  />
 
-                {signInError ? <p className="form-error">{signInError}</p> : null}
+                  <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
+                    Forgot password?
+                  </Link>
 
-                <Button loading={isSigningIn} type="submit" className="btn-block auth-primary-action">
-                  Sign In
-                </Button>
-              </form>
+                  {signInError ? <p className="form-error">{signInError}</p> : null}
 
-              <div className="auth-oauth-section">
-                <div className="auth-divider">OR CONTINUE WITH</div>
-                <div className="oauth-grid auth-oauth-grid">
-                  <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
+                  <Button loading={isSigningIn} type="submit" className="btn-block auth-primary-action">
+                    Sign In
+                  </Button>
+                </form>
+
+                <p className="auth-footnote modern-auth-footnote auth-split-footnote">
+                  Don&apos;t have an account?{" "}
+                  <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
+                    Sign Up
+                  </button>
+                </p>
+              </div>
+
+              <div className="auth-split-right">
+                <h2 className="auth-oauth-title">Continue with</h2>
+                <div className="oauth-grid auth-oauth-grid auth-split-oauth-grid">
+                  <OAuthButton provider="google" className="auth-split-oauth-btn" onClick={() => launchOAuth("google")}>
                     Continue with Google
                   </OAuthButton>
-                  <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
+                  <OAuthButton provider="github" className="auth-split-oauth-btn" onClick={() => launchOAuth("github")}>
                     Continue with GitHub
                   </OAuthButton>
                 </div>
               </div>
-
-              <p className="auth-footnote modern-auth-footnote">
-                Don&apos;t have an account?{" "}
-                <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
-                  Sign Up
-                </button>
-              </p>
             </section>
           ) : (
             <section className="auth-panel" aria-hidden={false}>
+              <h1 className="auth-title">{isOtpStep ? "Verify your email" : "Create your account"}</h1>
+              <p className="auth-subtext">
+                {isOtpStep
+                  ? `Enter the 6-digit code sent to ${signupEmail}.`
+                  : "Get started in under a minute with a simple two-step signup."}
+              </p>
               {!isOtpStep ? (
                 <div className="signup-progress" aria-label="Signup steps">
                   <p className="signup-step-count">Step {signupStep} of 2</p>
