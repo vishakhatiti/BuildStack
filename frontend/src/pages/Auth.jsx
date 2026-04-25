@@ -196,184 +196,195 @@ const Auth = () => {
 
   return (
     <main className="auth-shell page-fade-in">
-      <Card className="auth-card clean-auth-card auth-premium-card">
-        <Link to="/" className="auth-backlink">
-          ← Back to home
-        </Link>
+      <div className="auth-container">
+        <Card className="auth-card clean-auth-card auth-premium-card">
+          <Link to="/" className="auth-backlink">
+            ← Back to home
+          </Link>
 
-        <h1 className="auth-title">{activeTab === "signin" ? "Welcome back" : "Create your account"}</h1>
-        <p className="auth-subtext">
-          {activeTab === "signin"
-            ? "Sign in to continue building with your workspace."
-            : "Set up your account and get started in seconds."}
-        </p>
+          <h1 className="auth-title">{activeTab === "signin" ? "Welcome back" : "Create your account"}</h1>
+          <p className="auth-subtext">
+            {activeTab === "signin"
+              ? "Sign in to continue building with your workspace."
+              : "Set up your account and get started in seconds."}
+          </p>
 
-        <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
-          <button
-            type="button"
-            className={activeTab === "signin" ? "tab active" : "tab"}
-            onClick={() => switchTo("signin")}
-            role="tab"
-            aria-selected={activeTab === "signin"}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            className={activeTab === "signup" ? "tab active" : "tab"}
-            onClick={() => switchTo("signup")}
-            role="tab"
-            aria-selected={activeTab === "signup"}
-          >
-            Sign Up
-          </button>
-        </div>
+          <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
+            <button
+              type="button"
+              className={activeTab === "signin" ? "tab active" : "tab"}
+              onClick={() => switchTo("signin")}
+              role="tab"
+              aria-selected={activeTab === "signin"}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              className={activeTab === "signup" ? "tab active" : "tab"}
+              onClick={() => switchTo("signup")}
+              role="tab"
+              aria-selected={activeTab === "signup"}
+            >
+              Sign Up
+            </button>
+          </div>
 
-        <div className={`auth-panels ${activeTab === "signup" ? "show-signup" : "show-signin"}`}>
-          <section className="auth-panel" aria-hidden={activeTab !== "signin"}>
-            <form className="auth-form" onSubmit={handleSignIn}>
-              <Input
-                id="signin-email"
-                label="Email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={signInForm.email}
-                onChange={(event) => updateSignIn("email", event.target.value)}
-              />
-              <Input
-                id="signin-password"
-                label="Password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                value={signInForm.password}
-                onChange={(event) => updateSignIn("password", event.target.value)}
-              />
-
-              <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
-                Forgot password?
-              </Link>
-
-              {signInError ? <p className="form-error">{signInError}</p> : null}
-
-              <Button loading={isSigningIn} type="submit" className="btn-block">
-                Sign In
-              </Button>
-            </form>
-
-            <div className="auth-divider">OR CONTINUE WITH</div>
-            <div className="oauth-grid auth-oauth-grid">
-              <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
-                Continue with Google
-              </OAuthButton>
-              <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
-                Continue with GitHub
-              </OAuthButton>
-            </div>
-
-            <p className="auth-footnote modern-auth-footnote">
-              Don't have an account?{" "}
-              <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
-                Sign Up
-              </button>
-            </p>
-          </section>
-
-          <section className="auth-panel" aria-hidden={activeTab !== "signup"}>
-            <form className="auth-form" onSubmit={requiresOtpVerification ? handleVerifySignupOtp : handleSignUp}>
-              <Input
-                id="signup-name"
-                label="Name"
-                type="text"
-                autoComplete="name"
-                placeholder="Jane Doe"
-                value={signUpForm.name}
-                onChange={(event) => updateSignUp("name", event.target.value)}
-                disabled={requiresOtpVerification}
-              />
-              <Input
-                id="signup-email"
-                label="Email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={signUpForm.email}
-                onChange={(event) => updateSignUp("email", event.target.value)}
-                disabled={requiresOtpVerification}
-              />
-              <Input
-                id="signup-password"
-                label="Password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Create a strong password"
-                value={signUpForm.password}
-                onChange={(event) => updateSignUp("password", event.target.value)}
-                disabled={requiresOtpVerification}
-              />
-              <Input
-                id="signup-confirm-password"
-                label="Confirm Password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Re-enter your password"
-                value={signUpForm.confirmPassword}
-                onChange={(event) => updateSignUp("confirmPassword", event.target.value)}
-                disabled={requiresOtpVerification}
-              />
-
-              {requiresOtpVerification ? (
+          {activeTab === "signin" ? (
+            <section className="auth-panel" aria-hidden={false}>
+              <form className="auth-form" onSubmit={handleSignIn}>
                 <Input
-                  id="signup-otp"
-                  label="Verification Code"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="Enter 6-digit OTP"
-                  value={signUpForm.otp}
-                  onChange={(event) => updateSignUp("otp", event.target.value.replace(/\D/g, ""))}
+                  id="signin-email"
+                  label="Email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  value={signInForm.email}
+                  onChange={(event) => updateSignIn("email", event.target.value)}
                 />
-              ) : null}
+                <Input
+                  id="signin-password"
+                  label="Password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={signInForm.password}
+                  onChange={(event) => updateSignIn("password", event.target.value)}
+                />
 
-              {signUpNotice ? <p className="form-notice">{signUpNotice}</p> : null}
-              {signUpError ? <p className="form-error">{signUpError}</p> : null}
+                <Link to="/forgot-password" className="auth-inline-link auth-forgot-link">
+                  Forgot password?
+                </Link>
 
-              {requiresOtpVerification ? (
-                <div className="auth-stacked-actions">
-                  <Button loading={isVerifyingSignup} type="submit" className="btn-block" disabled={signUpForm.otp.length !== 6}>
-                    Verify & Continue
-                  </Button>
-                  <Button type="button" variant="ghost" onClick={resendSignupOtp} disabled={isSigningUp}>
-                    {isSigningUp ? "Resending..." : "Resend code"}
-                  </Button>
-                </div>
-              ) : (
-                <Button loading={isSigningUp} type="submit" className="btn-block">
-                  Create Account
+                {signInError ? <p className="form-error">{signInError}</p> : null}
+
+                <Button loading={isSigningIn} type="submit" className="btn-block auth-primary-action">
+                  Sign In
                 </Button>
-              )}
-            </form>
+              </form>
 
-            <div className="auth-divider">OR CONTINUE WITH</div>
-            <div className="oauth-grid auth-oauth-grid">
-              <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
-                Continue with Google
-              </OAuthButton>
-              <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
-                Continue with GitHub
-              </OAuthButton>
-            </div>
+              <div className="auth-oauth-section">
+                <div className="auth-divider">OR CONTINUE WITH</div>
+                <div className="oauth-grid auth-oauth-grid">
+                  <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
+                    Continue with Google
+                  </OAuthButton>
+                  <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
+                    Continue with GitHub
+                  </OAuthButton>
+                </div>
+              </div>
 
-            <p className="auth-footnote modern-auth-footnote">
-              Already have an account?{" "}
-              <button type="button" className="auth-inline-link" onClick={() => switchTo("signin")}>
-                Sign In
-              </button>
-            </p>
-          </section>
-        </div>
-      </Card>
+              <p className="auth-footnote modern-auth-footnote">
+                Don&apos;t have an account?{" "}
+                <button type="button" className="auth-inline-link" onClick={() => switchTo("signup")}>
+                  Sign Up
+                </button>
+              </p>
+            </section>
+          ) : (
+            <section className="auth-panel" aria-hidden={false}>
+              <form className="auth-form" onSubmit={requiresOtpVerification ? handleVerifySignupOtp : handleSignUp}>
+                <Input
+                  id="signup-name"
+                  label="Name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Jane Doe"
+                  value={signUpForm.name}
+                  onChange={(event) => updateSignUp("name", event.target.value)}
+                  disabled={requiresOtpVerification}
+                />
+                <Input
+                  id="signup-email"
+                  label="Email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  value={signUpForm.email}
+                  onChange={(event) => updateSignUp("email", event.target.value)}
+                  disabled={requiresOtpVerification}
+                />
+                <Input
+                  id="signup-password"
+                  label="Password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Create a strong password"
+                  value={signUpForm.password}
+                  onChange={(event) => updateSignUp("password", event.target.value)}
+                  disabled={requiresOtpVerification}
+                />
+                <Input
+                  id="signup-confirm-password"
+                  label="Confirm Password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Re-enter your password"
+                  value={signUpForm.confirmPassword}
+                  onChange={(event) => updateSignUp("confirmPassword", event.target.value)}
+                  disabled={requiresOtpVerification}
+                />
+
+                {requiresOtpVerification ? (
+                  <Input
+                    id="signup-otp"
+                    label="Verification Code"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP"
+                    value={signUpForm.otp}
+                    onChange={(event) => updateSignUp("otp", event.target.value.replace(/\D/g, ""))}
+                  />
+                ) : null}
+
+                {signUpNotice ? <p className="form-notice">{signUpNotice}</p> : null}
+                {signUpError ? <p className="form-error">{signUpError}</p> : null}
+
+                {requiresOtpVerification ? (
+                  <div className="auth-stacked-actions">
+                    <Button
+                      loading={isVerifyingSignup}
+                      type="submit"
+                      className="btn-block auth-primary-action"
+                      disabled={signUpForm.otp.length !== 6}
+                    >
+                      Verify & Continue
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={resendSignupOtp} disabled={isSigningUp}>
+                      {isSigningUp ? "Resending..." : "Resend code"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button loading={isSigningUp} type="submit" className="btn-block auth-primary-action">
+                    Create Account
+                  </Button>
+                )}
+              </form>
+
+              <div className="auth-oauth-section">
+                <div className="auth-divider">OR CONTINUE WITH</div>
+                <div className="oauth-grid auth-oauth-grid">
+                  <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
+                    Continue with Google
+                  </OAuthButton>
+                  <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
+                    Continue with GitHub
+                  </OAuthButton>
+                </div>
+              </div>
+
+              <p className="auth-footnote modern-auth-footnote">
+                Already have an account?{" "}
+                <button type="button" className="auth-inline-link" onClick={() => switchTo("signin")}>
+                  Sign In
+                </button>
+              </p>
+            </section>
+          )}
+        </Card>
+      </div>
     </main>
   );
 };
