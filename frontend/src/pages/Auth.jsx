@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import API, { AUTH_BASE_URL } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
@@ -6,6 +6,7 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import OAuthButton from "../components/ui/OAuthButton";
+import OTPInput from "../components/ui/OTPInput";
 
 const GOOGLE_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/google`;
 const GITHUB_OAUTH_URL = `${AUTH_BASE_URL}/api/auth/github`;
@@ -41,7 +42,7 @@ const Auth = () => {
   const [signUpForm, setSignUpForm] = useState(initialSignUpForm);
   const [signupStep, setSignupStep] = useState(SIGNUP_STEPS.PROFILE);
   const [signupEmail, setSignupEmail] = useState("");
-  const [otpDigits, setOtpDigits] = useState(Array(OTP_LENGTH).fill(""));
+  const [otpValue, setOtpValue] = useState("");
 
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -52,7 +53,6 @@ const Auth = () => {
   const [signUpError, setSignUpError] = useState("");
   const [signUpNotice, setSignUpNotice] = useState("");
 
-  const otpRefs = useRef([]);
   const isOtpStep = signupStep === SIGNUP_STEPS.OTP;
 
   useEffect(() => {
@@ -89,18 +89,13 @@ const Auth = () => {
     return () => window.clearInterval(intervalId);
   }, [isOtpStep, resendTimer]);
 
-  useEffect(() => {
-    if (!isOtpStep) return;
-    otpRefs.current[0]?.focus();
-  }, [isOtpStep]);
-
   const switchTo = (tab) => {
     setActiveTab(tab);
     setSignInError("");
     setSignUpError("");
     setSignUpNotice("");
     setSignupStep(SIGNUP_STEPS.PROFILE);
-    setOtpDigits(Array(OTP_LENGTH).fill(""));
+    setOtpValue("");
     setResendTimer(0);
   };
 
@@ -111,8 +106,6 @@ const Auth = () => {
   const updateSignUp = (key, value) => {
     setSignUpForm((prev) => ({ ...prev, [key]: value }));
   };
-
-  const otpValue = otpDigits.join("");
 
   const launchOAuth = (provider) => {
     window.location.href = provider === "google" ? GOOGLE_OAUTH_URL : GITHUB_OAUTH_URL;
@@ -193,7 +186,7 @@ const Auth = () => {
       setSignUpForm((prev) => ({ ...prev, name: normalizedName, email: normalizedEmail }));
       setSignupEmail(normalizedEmail);
       setSignupStep(SIGNUP_STEPS.OTP);
-      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setOtpValue("");
       setResendTimer(OTP_RESEND_SECONDS);
       setSignUpNotice(data.message || `Account created. Enter the OTP sent to ${normalizedEmail}.`);
     } catch (requestError) {
@@ -257,91 +250,19 @@ const Auth = () => {
     }
   };
 
-  const handleOtpChange = (index, value) => {
-    const sanitized = value.replace(/\D/g, "");
-    if (!sanitized) {
-      setOtpDigits((previous) => {
-        const next = [...previous];
-        next[index] = "";
-        return next;
-      });
-      return;
-    }
-
-    setOtpDigits((previous) => {
-      const next = [...previous];
-      let writeIndex = index;
-
-      for (const digit of sanitized.slice(0, OTP_LENGTH - index)) {
-        next[writeIndex] = digit;
-        writeIndex += 1;
-      }
-
-      return next;
-    });
-
-    const nextFocusIndex = Math.min(index + sanitized.length, OTP_LENGTH - 1);
-    otpRefs.current[nextFocusIndex]?.focus();
-  };
-
-  const handleOtpKeyDown = (index, event) => {
-    if (event.key !== "Backspace") return;
-
-    if (otpDigits[index]) {
-      setOtpDigits((previous) => {
-        const next = [...previous];
-        next[index] = "";
-        return next;
-      });
-      return;
-    }
-
-    if (index > 0) {
-      setOtpDigits((previous) => {
-        const next = [...previous];
-        next[index - 1] = "";
-        return next;
-      });
-      otpRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (event) => {
-    event.preventDefault();
-    const pastedDigits = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    if (!pastedDigits) return;
-
-    setOtpDigits((previous) => {
-      const next = [...previous];
-      for (let index = 0; index < OTP_LENGTH; index += 1) {
-        next[index] = pastedDigits[index] || "";
-      }
-      return next;
-    });
-
-    const focusIndex = Math.min(pastedDigits.length, OTP_LENGTH) - 1;
-    if (focusIndex >= 0) {
-      otpRefs.current[focusIndex]?.focus();
-    }
-  };
-
   return (
     <main className="auth-shell page-fade-in">
       <div className="auth-container">
         <Card className="auth-card clean-auth-card auth-premium-card">
-          <Link to="/" className="auth-backlink">
-            ← Back to home
-          </Link>
-
           <h1 className="auth-title">
-            {activeTab === "signin" ? "Welcome back" : signupStep === SIGNUP_STEPS.OTP ? "Verify your email" : "Create your account"}
+            {activeTab === "signin" ? "Welcome back" : isOtpStep ? "Verify your email" : "Create your account"}
           </h1>
           <p className="auth-subtext">
             {activeTab === "signin"
-              ? "Sign in to continue building with your workspace."
-              : signupStep === SIGNUP_STEPS.OTP
-                ? `Enter the 6-digit OTP sent to ${signupEmail}.`
-                : "Set up your account with a quick 2-step flow."}
+              ? "Sign in to BuildStack and continue shipping."
+              : isOtpStep
+                ? `Enter the 6-digit code sent to ${signupEmail}.`
+                : "Get started in under a minute with a simple two-step signup."}
           </p>
 
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
@@ -419,14 +340,15 @@ const Auth = () => {
             </section>
           ) : (
             <section className="auth-panel" aria-hidden={false}>
-              <div className="signup-progress" aria-label="Signup steps">
-                <p className="signup-step-count">{signupStep === SIGNUP_STEPS.OTP ? "Step 3 of 3" : `Step ${signupStep} of 2`}</p>
-                <div className="signup-steps-rail">
-                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PROFILE ? "active" : ""}`}>Step 1</span>
-                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PASSWORD ? "active" : ""}`}>Step 2</span>
-                  <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.OTP ? "active" : ""}`}>Step 3</span>
+              {!isOtpStep ? (
+                <div className="signup-progress" aria-label="Signup steps">
+                  <p className="signup-step-count">Step {signupStep} of 2</p>
+                  <div className="signup-steps-rail">
+                    <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PROFILE ? "active" : ""}`}>Step 1</span>
+                    <span className={`signup-step-pill ${signupStep >= SIGNUP_STEPS.PASSWORD ? "active" : ""}`}>Step 2</span>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <form className="auth-form" onSubmit={isOtpStep ? handleVerifySignupOtp : signupStep === SIGNUP_STEPS.PROFILE ? handleContinueSignup : handleSignUp}>
                 {signupStep === SIGNUP_STEPS.PROFILE ? (
@@ -476,27 +398,9 @@ const Auth = () => {
                 ) : null}
 
                 {isOtpStep ? (
-                  <div className="otp-input-group signup-step-content" onPaste={handleOtpPaste} key="signup-otp-step">
-                    <span className="field-hint">Verification Code</span>
-                    <div className="otp-input-row">
-                      {otpDigits.map((digit, index) => (
-                        <input
-                          key={`otp-${index}`}
-                          ref={(element) => {
-                            otpRefs.current[index] = element;
-                          }}
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          className="otp-digit-input"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(event) => handleOtpChange(index, event.target.value)}
-                          onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                          aria-label={`OTP digit ${index + 1}`}
-                        />
-                      ))}
-                    </div>
+                  <div className="signup-step-content" key="signup-otp-step">
+                    <span className="field-hint otp-title">Verification Code</span>
+                    <OTPInput value={otpValue} onChange={setOtpValue} disabled={isVerifyingSignup} />
                   </div>
                 ) : null}
 
@@ -528,26 +432,14 @@ const Auth = () => {
                       className="btn-block auth-primary-action"
                       disabled={otpValue.length !== OTP_LENGTH}
                     >
-                      Verify
+                      Verify OTP
                     </Button>
                     <Button type="button" variant="ghost" onClick={resendSignupOtp} disabled={resendTimer > 0 || isResendingOtp}>
-                      {isResendingOtp ? "Resending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+                      {isResendingOtp ? "Resending..." : resendTimer > 0 ? `Resend OTP (${resendTimer}s)` : "Resend OTP"}
                     </Button>
                   </div>
                 ) : null}
               </form>
-
-              <div className="auth-oauth-section">
-                <div className="auth-divider">OR CONTINUE WITH</div>
-                <div className="oauth-grid auth-oauth-grid">
-                  <OAuthButton provider="google" onClick={() => launchOAuth("google")}>
-                    Continue with Google
-                  </OAuthButton>
-                  <OAuthButton provider="github" onClick={() => launchOAuth("github")}>
-                    Continue with GitHub
-                  </OAuthButton>
-                </div>
-              </div>
 
               <p className="auth-footnote modern-auth-footnote">
                 Already have an account?{" "}
