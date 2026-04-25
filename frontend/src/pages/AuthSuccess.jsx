@@ -4,37 +4,27 @@ import { AuthContext } from "../context/AuthContext";
 
 const AuthSuccess = () => {
   const navigate = useNavigate();
-  const { refreshUser, logout } = useContext(AuthContext);
+  const { login, logout } = useContext(AuthContext);
   const [params] = useSearchParams();
 
   useEffect(() => {
-    const run = async () => {
-      const token = params.get("token");
+    const token = params.get("token");
 
-      if (!token) {
-        logout();
-        navigate("/auth", { replace: true });
-        return;
-      }
+    if (!token) {
+      logout();
+      navigate("/auth", { replace: true });
+      return;
+    }
 
-      localStorage.setItem("token", token);
-
-      try {
-        await refreshUser();
-        navigate("/dashboard", { replace: true });
-      } catch {
-        logout();
-        navigate("/auth", { replace: true });
-      }
-    };
-
-    run();
-  }, [navigate, params, refreshUser, logout]);
+    localStorage.setItem("token", token);
+    login({ token });
+    navigate("/dashboard", { replace: true });
+  }, [login, logout, navigate, params]);
 
   return (
     <div className="center-screen">
       <div className="spinner" />
-      <p>Finalizing authentication...</p>
+      <p>Completing sign-in…</p>
     </div>
   );
 };
