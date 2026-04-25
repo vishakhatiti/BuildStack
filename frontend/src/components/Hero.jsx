@@ -1,3 +1,4 @@
+import logoFull from "../assets/logo-full.svg";
 const Hero = () => {
   return (
     <section className="hero-section premium-hero" id="home">
@@ -6,6 +7,7 @@ const Hero = () => {
       <div className="hero-orb" aria-hidden="true" />
 
       <div className="container hero-layout hero-enter">
+        <img src={logoFull} alt="BuildStack" className="hero-brand-logo" />
         <p className="eyebrow">Built for shipping-focused developers</p>
         <h1 className="hero-title">
           Manage projects and track every <span>deployment status</span> in one view.

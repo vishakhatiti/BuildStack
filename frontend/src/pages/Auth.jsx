@@ -6,6 +6,7 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import OTPInput from "../components/ui/OTPInput";
+import logoIcon from "../assets/logo-icon.svg";
 const OTP_LENGTH = 6;
 const OTP_RESEND_SECONDS = 30;
 
@@ -249,6 +250,9 @@ const Auth = () => {
           ← Back to Home
         </Link>
         <Card className={`auth-card auth-premium-card auth-compact-card ${activeTab === "signup" ? "auth-card--signup" : "auth-card--signin"}`}>
+          <div className="auth-brand" aria-label="BuildStack">
+            <img src={logoIcon} alt="BuildStack logo" className="auth-brand-logo" />
+          </div>
           <div className="tabs premium-tabs" role="tablist" aria-label="Authentication tabs">
             <button
               type="button"
