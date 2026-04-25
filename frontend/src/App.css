@@ -350,3 +350,135 @@ h1 {
     gap: 8px;
   }
 }
+
+.auth-premium-card {
+  background: linear-gradient(180deg, rgba(12, 18, 34, 0.96) 0%, rgba(10, 15, 28, 0.95) 100%);
+  border: 1px solid rgba(147, 161, 187, 0.22);
+  box-shadow: 0 26px 60px rgba(2, 8, 23, 0.6);
+  overflow: hidden;
+}
+
+.auth-title {
+  margin-top: 12px;
+  font-size: clamp(1.7rem, 3.2vw, 2rem);
+}
+
+.premium-tabs {
+  position: relative;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 5px;
+}
+
+.premium-tabs .tab {
+  min-height: 42px;
+}
+
+.auth-panels {
+  width: 200%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+.auth-panels.show-signin {
+  transform: translateX(0);
+}
+
+.auth-panels.show-signup {
+  transform: translateX(-50%);
+}
+
+.auth-panel {
+  width: 100%;
+  padding-top: 4px;
+}
+
+.field-label {
+  display: grid;
+  gap: 8px;
+}
+
+.field-label > span {
+  color: #d9e3f5;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(147, 161, 187, 0.35);
+  background: rgba(10, 15, 28, 0.75);
+  color: #f8fafc;
+  padding: 12px 14px;
+  font-size: 0.98rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field::placeholder {
+  color: rgba(209, 219, 239, 0.55);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: rgba(91, 140, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.2);
+}
+
+.input-field.is-error,
+.field-error {
+  border-color: rgba(248, 113, 113, 0.9);
+}
+
+.field-error,
+.form-error {
+  color: #fca5a5;
+  font-size: 0.86rem;
+}
+
+.field-hint,
+.form-notice {
+  color: #9fb2d8;
+  font-size: 0.86rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.auth-inline-link {
+  border: 0;
+  background: transparent;
+  color: #8cb0ff;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0;
+}
+
+.auth-inline-link:hover {
+  color: #afc6ff;
+  text-decoration: underline;
+}
+
+.auth-forgot-link {
+  justify-self: flex-start;
+  font-size: 0.9rem;
+  margin-top: -2px;
+}
+
+.auth-stacked-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.modern-auth-footnote {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .auth-premium-card {
+    width: min(520px, 100%);
+  }
+}
