@@ -1,17 +1,17 @@
 :root {
   font-family: Inter, Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
-  --bg: #070b14;
-  --bg-soft: #0d1322;
-  --surface: rgba(14, 20, 34, 0.82);
-  --surface-strong: rgba(18, 25, 40, 0.94);
+  --bg: #0b1220;
+  --bg-soft: #0f172a;
+  --surface: rgba(15, 23, 42, 0.85);
+  --surface-strong: rgba(15, 23, 42, 0.92);
   --line: rgba(147, 161, 187, 0.2);
-  --text: #f8fafc;
-  --text-muted: #a3b1ca;
-  --primary-a: #14b8a6;
-  --primary-b: #10b981;
+  --text: #f9fafb;
+  --text-muted: #94a3b8;
+  --primary-a: #2563eb;
+  --primary-b: #3b82f6;
   --shadow-soft: 0 18px 40px rgba(1, 6, 19, 0.42);
-  --shadow-hover: 0 24px 52px rgba(20, 184, 166, 0.28);
+  --shadow-hover: 0 24px 52px rgba(37, 99, 235, 0.28);
 }
 
 * {
@@ -28,9 +28,9 @@ body {
   margin: 0;
   color: var(--text);
   background:
-    radial-gradient(circle at 10% -20%, rgba(20, 184, 166, 0.15), transparent 35%),
-    radial-gradient(circle at 95% 0%, rgba(16, 185, 129, 0.14), transparent 34%),
-    linear-gradient(180deg, #050911 0%, #080d18 48%, #070b14 100%);
+    radial-gradient(circle at 10% -20%, rgba(37, 99, 235, 0.15), transparent 35%),
+    radial-gradient(circle at 95% 0%, rgba(59, 130, 246, 0.14), transparent 34%),
+    linear-gradient(180deg, #0b1220 0%, #0b1220 100%);
 }
 
 a {
@@ -67,7 +67,7 @@ a {
   top: 0;
   z-index: 40;
   border-bottom: 1px solid var(--line);
-  background: rgba(7, 11, 20, 0.72);
+  background: rgba(11, 18, 32, 0.76);
   backdrop-filter: blur(12px);
 }
 
@@ -91,7 +91,7 @@ a {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
 }
 
 .nav-actions {
@@ -130,8 +130,8 @@ a {
 .btn-primary {
   color: white;
   border-color: transparent;
-  background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
-  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -147,7 +147,7 @@ a {
 
 .btn-secondary:hover:not(:disabled),
 .btn-ghost:hover:not(:disabled) {
-  border-color: rgba(20, 184, 166, 0.6);
+  border-color: rgba(37, 99, 235, 0.6);
 }
 
 .card {
@@ -183,7 +183,7 @@ a {
 
 .hero-kicker {
   margin: 0 0 12px;
-  color: #14b8a6;
+  color: #2563eb;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -254,7 +254,7 @@ h1 {
 
 .oauth-button:hover {
   transform: translateY(-2px);
-  border-color: rgba(20, 184, 166, 0.65);
+  border-color: rgba(37, 99, 235, 0.65);
   box-shadow: 0 14px 30px rgba(13, 23, 54, 0.6);
 }
 
@@ -311,9 +311,9 @@ h1 {
 }
 
 .tab.active {
-  background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white;
-  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
 .auth-oauth-grid {
@@ -334,7 +334,7 @@ h1 {
   margin-inline: auto;
   border-radius: 999px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #10b981;
+  border-top-color: #2563eb;
   animation: spin 0.7s linear infinite;
 }
 
@@ -415,18 +415,18 @@ h1 {
 
 .input-field:focus {
   outline: none;
-  border-color: rgba(20, 184, 166, 0.9);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.22), 0 0 16px rgba(20, 184, 166, 0.2);
+  border-color: rgba(37, 99, 235, 0.9);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22), 0 0 16px rgba(37, 99, 235, 0.2);
 }
 
 .input-field.is-error,
 .field-error {
-  border-color: rgba(248, 113, 113, 0.9);
+  border-color: rgba(59, 130, 246, 0.9);
 }
 
 .field-error,
 .form-error {
-  color: #fca5a5;
+  color: #94a3b8;
   font-size: 0.86rem;
 }
 
@@ -462,7 +462,7 @@ h1 {
 }
 
 .auth-inline-link:hover {
-  color: #10b981;
+  color: #3b82f6;
   text-decoration: underline;
 }
 
@@ -523,7 +523,7 @@ h1 {
 
 .signup-step-pill {
   font-size: 0.74rem;
-  color: #8ca1c7;
+  color: #64748b;
   border: 1px solid rgba(147, 161, 187, 0.24);
   border-radius: 999px;
   padding: 4px 0;
@@ -533,8 +533,8 @@ h1 {
 
 .signup-step-pill.active {
   color: #e8efff;
-  border-color: rgba(20, 184, 166, 0.75);
-  background: rgba(20, 184, 166, 0.18);
+  border-color: rgba(37, 99, 235, 0.75);
+  background: rgba(37, 99, 235, 0.18);
 }
 
 .signup-step-content {
@@ -577,8 +577,8 @@ h1 {
 
 .otp-digit-input:focus {
   outline: none;
-  border-color: rgba(20, 184, 166, 0.9);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.22), 0 0 16px rgba(20, 184, 166, 0.2);
+  border-color: rgba(37, 99, 235, 0.9);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22), 0 0 16px rgba(37, 99, 235, 0.2);
 }
 
 /* Premium auth refresh */
@@ -588,8 +588,8 @@ h1 {
   place-items: center;
   padding: 20px;
   background:
-    radial-gradient(55% 45% at 50% 6%, rgba(20, 184, 166, 0.22) 0%, rgba(20, 184, 166, 0) 72%),
-    radial-gradient(42% 35% at 20% 80%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%),
+    radial-gradient(55% 45% at 50% 6%, rgba(37, 99, 235, 0.22) 0%, rgba(37, 99, 235, 0) 72%),
+    radial-gradient(42% 35% at 20% 80%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 70%),
     #0a0f1c;
 }
 
@@ -605,7 +605,7 @@ h1 {
   border: 1px solid rgba(226, 232, 240, 0.18);
   box-shadow:
     0 24px 48px rgba(2, 8, 23, 0.55),
-    0 8px 20px rgba(13, 148, 136, 0.12),
+    0 8px 20px rgba(37, 99, 235, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   padding: clamp(20px, 5vw, 28px);
   animation: fadeIn 0.3s ease;
@@ -655,7 +655,7 @@ h1 {
   width: min(900px, 90vw);
   height: min(900px, 90vw);
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, rgba(20, 184, 166, 0) 65%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0) 65%);
   filter: blur(16px);
   z-index: 0;
 }
@@ -733,8 +733,8 @@ h1 {
 .oauth-button.auth-split-oauth-btn:hover {
   transform: scale(1.02);
   box-shadow:
-    0 14px 28px rgba(20, 184, 166, 0.22),
-    0 0 0 1px rgba(20, 184, 166, 0.28);
+    0 14px 28px rgba(37, 99, 235, 0.22),
+    0 0 0 1px rgba(37, 99, 235, 0.28);
 }
 
 .auth-split-footnote {
@@ -785,22 +785,22 @@ h1 {
 
 .input-field:focus,
 .otp-digit:focus {
-  border-color: rgba(20, 184, 166, 0.9);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.22), 0 0 16px rgba(20, 184, 166, 0.2);
+  border-color: rgba(37, 99, 235, 0.9);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22), 0 0 16px rgba(37, 99, 235, 0.2);
 }
 
 .auth-primary-action,
 .auth-panel .btn-primary {
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: 0;
   min-height: 46px;
-  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
 .auth-primary-action:hover:not(:disabled),
 .auth-panel .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 18px 30px rgba(16, 185, 129, 0.32), 0 0 18px rgba(20, 184, 166, 0.22);
+  box-shadow: 0 18px 30px rgba(59, 130, 246, 0.32), 0 0 18px rgba(37, 99, 235, 0.22);
 }
 
 .auth-divider {
@@ -819,8 +819,8 @@ h1 {
 
 .oauth-button:hover {
   transform: translateY(-1px) scale(1.01);
-  border-color: rgba(20, 184, 166, 0.6);
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.55), 0 0 0 1px rgba(20, 184, 166, 0.3);
+  border-color: rgba(37, 99, 235, 0.6);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.55), 0 0 0 1px rgba(37, 99, 235, 0.3);
 }
 
 .auth-oauth-section {
@@ -876,11 +876,11 @@ h1 {
 }
 
 .auth-inline-link {
-  color: #14b8a6;
+  color: #2563eb;
 }
 
 .auth-inline-link:hover {
-  color: #10b981;
+  color: #3b82f6;
 }
 
 .auth-forgot-link {
@@ -907,15 +907,15 @@ h1 {
 /* Auth UI polish pass */
 .auth-shell {
   background:
-    radial-gradient(50% 50% at 50% 0%, rgba(20, 184, 166, 0.15) 0%, rgba(20, 184, 166, 0) 72%),
-    radial-gradient(42% 40% at 82% 24%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%),
+    radial-gradient(50% 50% at 50% 0%, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0) 72%),
+    radial-gradient(42% 40% at 82% 24%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 70%),
     #070d19;
 }
 
 .auth-shell::before {
   width: min(980px, 95vw);
   height: min(980px, 95vw);
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, rgba(20, 184, 166, 0) 68%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0) 68%);
 }
 
 .auth-premium-card {
@@ -946,8 +946,8 @@ h1 {
 
 .premium-tabs .tab.active {
   color: #ffffff;
-  background: linear-gradient(135deg, #14b8a6, #10b981);
-  box-shadow: 0 10px 22px rgba(16, 185, 129, 0.35), 0 0 0 1px rgba(153, 246, 228, 0.38);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 10px 22px rgba(59, 130, 246, 0.35), 0 0 0 1px rgba(96, 165, 250, 0.38);
 }
 
 .auth-split-layout {
@@ -995,8 +995,8 @@ h1 {
 
 .oauth-button.auth-split-oauth-btn:hover {
   transform: translateY(-1px) scale(1.018);
-  border-color: rgba(20, 184, 166, 0.68);
-  box-shadow: 0 14px 26px rgba(8, 47, 73, 0.45), 0 0 0 1px rgba(20, 184, 166, 0.38);
+  border-color: rgba(37, 99, 235, 0.68);
+  box-shadow: 0 14px 26px rgba(8, 47, 73, 0.45), 0 0 0 1px rgba(37, 99, 235, 0.38);
 }
 
 .auth-signup-panel {
@@ -1006,8 +1006,8 @@ h1 {
 
 .auth-primary-action,
 .auth-panel .btn-primary {
-  background: linear-gradient(135deg, #14b8a6, #10b981);
-  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
   transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
 }
 
@@ -1015,7 +1015,7 @@ h1 {
 .auth-panel .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: saturate(1.07);
-  box-shadow: 0 20px 34px rgba(5, 150, 105, 0.4), 0 0 18px rgba(20, 184, 166, 0.26);
+  box-shadow: 0 20px 34px rgba(37, 99, 235, 0.4), 0 0 18px rgba(37, 99, 235, 0.26);
 }
 
 @media (max-width: 900px) {
@@ -1082,12 +1082,102 @@ h1 {
   .auth-primary-action,
   .auth-panel .btn-primary {
     width: 100%;
-    background: linear-gradient(135deg, #14b8a6, #10b981);
-    box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
   }
 
   .auth-primary-action:hover:not(:disabled),
   .auth-panel .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 18px 30px rgba(5, 150, 105, 0.34), 0 0 18px rgba(20, 184, 166, 0.24);
+    box-shadow: 0 18px 30px rgba(37, 99, 235, 0.34), 0 0 18px rgba(37, 99, 235, 0.24);
   }
+}
+
+/* Final white + blue visual system overrides */
+:root {
+  --bg: #0b1220;
+  --bg-soft: #0f172a;
+  --surface: rgba(15, 23, 42, 0.85);
+  --surface-strong: rgba(15, 23, 42, 0.92);
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #f9fafb;
+  --text-muted: #94a3b8;
+  --primary-a: #2563eb;
+  --primary-b: #3b82f6;
+}
+
+body,
+.auth-shell {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 56%),
+    #0b1220;
+}
+
+.card,
+.auth-premium-card,
+.dashboard-card,
+.hero-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(2, 8, 23, 0.5), 0 0 24px rgba(37, 99, 235, 0.18);
+}
+
+.btn-primary,
+.auth-primary-action,
+.auth-panel .btn-primary,
+.tab.active,
+.premium-tabs .tab.active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled),
+.auth-primary-action:hover:not(:disabled),
+.auth-panel .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
+}
+
+.tab,
+.premium-tabs .tab,
+.auth-inline-link,
+.auth-home-link,
+.signup-step-count,
+.auth-oauth-subtext,
+.field-hint,
+.form-notice {
+  color: #94a3b8;
+}
+
+.input-field,
+.otp-digit,
+.otp-digit-input {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f9fafb;
+}
+
+.input-field:focus,
+.otp-digit:focus,
+.otp-digit-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22), 0 0 16px rgba(59, 130, 246, 0.25);
+}
+
+.oauth-button,
+.oauth-button.auth-split-oauth-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.oauth-button:hover,
+.oauth-button.auth-split-oauth-btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.38), 0 14px 30px rgba(15, 23, 42, 0.55);
+}
+
+a,
+.auth-inline-link:hover,
+.auth-home-link:hover {
+  color: #3b82f6;
 }
