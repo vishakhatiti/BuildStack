@@ -1,36 +1,44 @@
 import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Features from "../components/Features";
-import CTA from "../components/CTA";
-import Footer from "../components/Footer";
 import OAuthButton from "../components/ui/OAuthButton";
-import { AUTH_BASE_URL } from "../services/api";
+
+const GOOGLE_OAUTH_URL = "https://buildstack-kmdz.onrender.com/api/auth/google";
+const GITHUB_OAUTH_URL = "https://buildstack-kmdz.onrender.com/api/auth/github";
 
 const Landing = () => {
-  const oauth = (provider) => {
-    window.location.href = `${AUTH_BASE_URL}/api/auth/${provider}`;
-  };
-
   return (
-    <div className="landing-page page-fade-in" id="home">
-      <Navbar />
+    <div className="app-shell page-fade-in">
+      <header className="navbar">
+        <div className="page navbar-inner">
+          <Link to="/" className="brand" aria-label="BuildStack Home">
+            <span className="brand-dot" aria-hidden="true" />
+            BuildStack
+          </Link>
 
-      <main className="hero-section">
-        <div className="page hero-content">
-          <p className="badge">Project management for fast-moving teams</p>
-          <h1>
-            Launch faster with <span>clarity, control, and confidence.</span>
-          </h1>
+          <nav className="nav-actions" aria-label="Primary navigation">
+            <Link to="/auth?tab=signup" className="btn btn-primary btn-sm">
+              Get Started
+            </Link>
+            <Link to="/auth" className="btn btn-ghost btn-sm">
+              Sign In
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="hero-section page">
+        <section className="hero-card">
+          <p className="hero-kicker">Build software with confidence</p>
+          <h1>One secure workspace for teams shipping fast.</h1>
           <p className="hero-subtext">
-            BuildStack helps modern teams manage projects, track deployment outcomes, and collaborate
-            in one clean workspace built for execution.
+            BuildStack gives modern product teams a reliable control center for planning, delivery,
+            and authentication that scales with your growth.
           </p>
 
           <div className="hero-actions">
-            <Link className="btn btn-primary btn-lg" to="/auth?tab=signup">
+            <Link className="btn btn-primary" to="/auth?tab=signup">
               Get Started
             </Link>
-            <Link className="btn btn-secondary btn-lg" to="/auth">
+            <Link className="btn btn-secondary" to="/auth">
               Sign In
             </Link>
           </div>
@@ -40,21 +48,15 @@ const Landing = () => {
           </div>
 
           <div className="oauth-grid">
-            <OAuthButton provider="google" onClick={() => oauth("google")}>
+            <OAuthButton provider="google" onClick={() => (window.location.href = GOOGLE_OAUTH_URL)}>
               Continue with Google
             </OAuthButton>
-            <OAuthButton provider="github" onClick={() => oauth("github")}>
+            <OAuthButton provider="github" onClick={() => (window.location.href = GITHUB_OAUTH_URL)}>
               Continue with GitHub
             </OAuthButton>
           </div>
-
-          <p className="trust-line">Trusted by startup teams shipping every day</p>
-        </div>
+        </section>
       </main>
-
-      <Features />
-      <CTA />
-      <Footer />
     </div>
   );
 };

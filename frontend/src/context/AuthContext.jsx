@@ -3,9 +3,11 @@ import API from "../services/api";
 
 export const AuthContext = createContext(null);
 
+const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "buildstack_user";
 
 const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem(USER_STORAGE_KEY);
     if (!stored) return null;
@@ -19,36 +21,46 @@ const AuthProvider = ({ children }) => {
   });
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  const login = ({ token, user: userPayload }) => {
-    if (token) {
-      localStorage.setItem("token", token);
+  const login = ({ token: incomingToken, user: incomingUser }) => {
+    if (incomingToken) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, incomingToken);
+      setToken(incomingToken);
     }
-    if (userPayload) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userPayload));
-      setUser(userPayload);
+
+    if (incomingUser) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(incomingUser));
+      setUser(incomingUser);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
     localStorage.removeItem(USER_STORAGE_KEY);
+    setToken(null);
     setUser(null);
   };
 
   const refreshUser = async () => {
+    if (!localStorage.getItem(TOKEN_STORAGE_KEY)) {
+      setUser(null);
+      return null;
+    }
+
     const { data } = await API.get("/auth/me");
-    setUser(data.user);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
-    return data.user;
+    setUser(data.user || null);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user || null));
+    return data.user || null;
   };
 
   useEffect(() => {
     const bootstrap = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      const existingToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (!existingToken) {
         setIsAuthLoading(false);
         return;
       }
+
+      setToken(existingToken);
 
       try {
         await refreshUser();
@@ -64,15 +76,16 @@ const AuthProvider = ({ children }) => {
 
   const value = useMemo(
     () => ({
+      token,
       user,
       isAuthLoading,
-      isAuthenticated: Boolean(user),
+      isAuthenticated: Boolean(token),
       login,
       logout,
       setUser,
       refreshUser,
     }),
-    [user, isAuthLoading]
+    [token, user, isAuthLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
